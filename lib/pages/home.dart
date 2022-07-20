@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import './login.dart';
 
 class Home extends StatelessWidget {
   const Home({Key? key}) : super(key: key);
@@ -35,7 +36,11 @@ class Home extends StatelessWidget {
           Container(
             margin: const EdgeInsets.only(top: 30.0, bottom: 80),
             child: ElevatedButton(
-                onPressed: () {}, child: const Text("GET STARTED")),
+                onPressed: () {
+                  Navigator.of(context).pushReplacement(
+                      MaterialPageRoute(builder: (context) => const Login()));
+                },
+                child: const Text("GET STARTED")),
           ),
           Image.asset(
             "assets/images/movie.png",
