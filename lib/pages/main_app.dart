@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:moviefinder/components/movies.dart';
+import 'package:moviefinder/components/overview.dart';
+import 'package:moviefinder/components/profile.dart';
 import 'package:moviefinder/pages/settings.dart';
 
 class MainApp extends StatefulWidget {
@@ -21,7 +24,11 @@ class _MainAppState extends State<MainApp> {
             },
             icon: const Icon(Icons.settings))
       ]),
-      body: Text(selectedPage.toString()),
+      body: ((selectedPage == 0)
+          ? const Overview()
+          : (selectedPage == 1)
+              ? const Movies()
+              : const Profile()),
       bottomNavigationBar: BottomNavigationBar(
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.home), label: "Home"),

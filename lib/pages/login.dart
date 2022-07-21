@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:moviefinder/pages/main_app.dart';
 import 'package:moviefinder/pages/signup.dart';
 
 class Login extends StatefulWidget {
@@ -16,6 +17,8 @@ class _LoginState extends State<Login> {
   Future signinUser() async {
     await FirebaseAuth.instance.signInWithEmailAndPassword(
         email: emailController.text, password: passwordController.text);
+    Navigator.pushReplacement(
+        context, MaterialPageRoute(builder: (context) => const MainApp()));
   }
 
   @override
