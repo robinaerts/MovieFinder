@@ -1,8 +1,22 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:moviefinder/pages/signup.dart';
 
-class Login extends StatelessWidget {
+class Login extends StatefulWidget {
   const Login({Key? key}) : super(key: key);
+
+  @override
+  State<Login> createState() => _LoginState();
+}
+
+class _LoginState extends State<Login> {
+  final emailController = TextEditingController();
+  final passwordController = TextEditingController();
+
+  Future signinUser() async {
+    await FirebaseAuth.instance.signInWithEmailAndPassword(
+        email: emailController.text, password: passwordController.text);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -15,18 +29,23 @@ class Login extends StatelessWidget {
             "Email",
             style: TextStyle(fontWeight: FontWeight.bold),
           ),
-          const TextField(),
+          TextField(
+            controller: emailController,
+          ),
           const SizedBox(height: 50),
           const Text("Password", style: TextStyle(fontWeight: FontWeight.bold)),
-          const TextField(
+          TextField(
             obscureText: true,
             enableSuggestions: false,
             autocorrect: false,
+            controller: passwordController,
           ),
           Container(
             margin: const EdgeInsets.only(top: 30, bottom: 5),
             child: ElevatedButton(
-              onPressed: () {},
+              onPressed: () {
+                signinUser();
+              },
               child: const Text("Login"),
             ),
           ),

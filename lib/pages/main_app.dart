@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:moviefinder/pages/settings.dart';
 
 class MainApp extends StatefulWidget {
   const MainApp({Key? key}) : super(key: key);
@@ -13,7 +14,12 @@ class _MainAppState extends State<MainApp> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text("Movie Finder"), actions: [
-        IconButton(onPressed: () {}, icon: const Icon(Icons.settings))
+        IconButton(
+            onPressed: () {
+              Navigator.of(context).push(
+                  MaterialPageRoute(builder: ((context) => const Settings())));
+            },
+            icon: const Icon(Icons.settings))
       ]),
       body: Text(selectedPage.toString()),
       bottomNavigationBar: BottomNavigationBar(

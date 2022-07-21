@@ -15,13 +15,26 @@ class _SignupState extends State<Signup> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
-          title: const Text("Create an account"),
-        ),
-        body: (step == 0)
-            ? const CreateAccount()
-            : (step == 1)
-                ? const CreateJoinGroup()
-                : const Text("Error"));
+      appBar: AppBar(
+        title: const Text("Create an account"),
+      ),
+      body: Stepper(
+        type: StepperType.horizontal,
+        currentStep: step,
+        steps: [
+          Step(
+              isActive: step >= 0,
+              title: Text("Basic Details"),
+              content: CreateAccount(nextStep: () => setState(() => step = 1))),
+          Step(
+              isActive: step >= 1,
+              title: Text("Join a Group"),
+              content: CreateJoinGroup()),
+        ],
+        controlsBuilder: (context, details) {
+          return SizedBox();
+        },
+      ),
+    );
   }
 }
