@@ -24,15 +24,15 @@ class _SignupState extends State<Signup> {
         steps: [
           Step(
               isActive: step >= 0,
-              title: Text("Basic Details"),
+              title: const Text("Basic Details"),
               content: CreateAccount(nextStep: () => setState(() => step = 1))),
           Step(
               isActive: step >= 1,
-              title: Text("Join a Group"),
-              content: CreateJoinGroup()),
+              title: const Text("Join a Group"),
+              content: const CreateJoinGroup()),
         ],
         controlsBuilder: (context, details) {
-          return SizedBox();
+          return const SizedBox();
         },
       ),
     );

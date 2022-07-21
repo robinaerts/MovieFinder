@@ -13,7 +13,7 @@ class _RateMovieState extends State<RateMovie> {
     return Container(
       height: 400,
       alignment: Alignment.topCenter,
-      margin: EdgeInsets.only(top: 20),
+      margin: const EdgeInsets.only(top: 20),
       child: FractionallySizedBox(
         widthFactor: 0.9,
         child: Card(

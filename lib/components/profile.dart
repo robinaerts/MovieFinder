@@ -1,22 +1,23 @@
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/src/foundation/key.dart';
-import 'package:flutter/src/widgets/framework.dart';
 
 class Profile extends StatelessWidget {
-  const Profile({Key? key}) : super(key: key);
+  Profile({Key? key}) : super(key: key);
 
   Future logout() async {
     await FirebaseAuth.instance.signOut();
   }
 
+  final User _user = FirebaseAuth.instance.currentUser!;
+
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return SizedBox(
       width: double.infinity,
       child: Column(crossAxisAlignment: CrossAxisAlignment.center, children: [
-        Container(
+        // Image.network(_user!.photoURL.toString()),
+        Text(_user.email.toString()),
+        SizedBox(
           width: 100,
           child: OutlinedButton(
             onPressed: logout,

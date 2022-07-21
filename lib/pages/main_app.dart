@@ -25,10 +25,10 @@ class _MainAppState extends State<MainApp> {
             icon: const Icon(Icons.settings))
       ]),
       body: ((selectedPage == 0)
-          ? const Overview()
+          ? Overview()
           : (selectedPage == 1)
               ? const Movies()
-              : const Profile()),
+              : Profile()),
       bottomNavigationBar: BottomNavigationBar(
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.home), label: "Home"),
