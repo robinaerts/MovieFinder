@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:moviefinder/components/signup_create.dart';
+import 'package:moviefinder/components/signup_details.dart';
 import 'package:moviefinder/components/signup_group.dart';
 
 class Signup extends StatefulWidget {
@@ -19,15 +20,20 @@ class _SignupState extends State<Signup> {
         title: const Text("Create an account"),
       ),
       body: Stepper(
-        type: StepperType.horizontal,
+        type: StepperType.vertical,
         currentStep: step,
         steps: [
           Step(
               isActive: step >= 0,
-              title: const Text("Basic Details"),
+              title: const Text("Create Account"),
               content: CreateAccount(nextStep: () => setState(() => step = 1))),
           Step(
               isActive: step >= 1,
+              title: const Text("More Details"),
+              content:
+                  AddAcountDetails(nextStep: () => setState(() => step = 2))),
+          Step(
+              isActive: step >= 2,
               title: const Text("Join a Group"),
               content: const CreateJoinGroup()),
         ],

@@ -21,6 +21,12 @@ class _LoginState extends State<Login> {
         context, MaterialPageRoute(builder: (context) => const MainApp()));
   }
 
+  Future signinWithGoogle() async {
+    await FirebaseAuth.instance.signInWithAuthProvider(GoogleAuthProvider());
+    Navigator.pushReplacement(
+        context, MaterialPageRoute(builder: (context) => const MainApp()));
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -53,11 +59,41 @@ class _LoginState extends State<Login> {
             ),
           ),
           TextButton(
-              onPressed: () {
-                Navigator.of(context).pushReplacement(
-                    MaterialPageRoute(builder: (context) => const Signup()));
-              },
-              child: const Text("Don't have an account? Signup"))
+            onPressed: () {
+              Navigator.of(context).pushReplacement(
+                  MaterialPageRoute(builder: (context) => const Signup()));
+            },
+            child: const Text("Don't have an account? Signup"),
+          ),
+          MaterialButton(
+            color: Colors.white,
+            elevation: 10,
+
+            // by onpressed we call the function signup function
+            onPressed: signinWithGoogle,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(10.0),
+                  child: Container(
+                    height: 30.0,
+                    width: 30.0,
+                    decoration: const BoxDecoration(
+                      image: DecorationImage(
+                          image: AssetImage('assets/images/googleimage.png'),
+                          fit: BoxFit.cover),
+                      shape: BoxShape.circle,
+                    ),
+                  ),
+                ),
+                const SizedBox(
+                  width: 20,
+                ),
+                const Text("Sign In with Google")
+              ],
+            ),
+          ),
         ]),
       ),
     );

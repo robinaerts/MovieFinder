@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
@@ -14,7 +15,7 @@ class _CreateAccountState extends State<CreateAccount> {
   final passwordController = TextEditingController();
   final passwordConfirmController = TextEditingController();
 
-  Future createAccount(CreateAccount widget) async {
+  Future<void> createAccount(CreateAccount widget) async {
     if (passwordController.text != passwordConfirmController.text) {
       return setState(() {
         errorMessage = "Passwords don't match";
@@ -26,8 +27,14 @@ class _CreateAccountState extends State<CreateAccount> {
       });
     }
 
-    await FirebaseAuth.instance.createUserWithEmailAndPassword(
-        email: emailController.text, password: passwordController.text);
+    UserCredential res = await FirebaseAuth.instance
+        .createUserWithEmailAndPassword(
+            email: emailController.text, password: passwordController.text);
+
+    CollectionReference users = FirebaseFirestore.instance.collection("users");
+    await users
+        .doc(res.user!.uid)
+        .set({'email': res.user!.email, 'id': res.user!.uid});
 
     widget.nextStep();
   }
@@ -39,24 +46,25 @@ class _CreateAccountState extends State<CreateAccount> {
       margin: const EdgeInsets.all(30),
       child: Column(
         children: [
-          const Text("Email"),
           TextField(
+            decoration: const InputDecoration(
+                border: UnderlineInputBorder(), labelText: "Enter your email"),
             controller: emailController,
           ),
-          const SizedBox(
-            height: 50,
-          ),
-          const Text("Password"),
+          const SizedBox(height: 20),
           TextField(
+              decoration: const InputDecoration(
+                  border: UnderlineInputBorder(),
+                  labelText: "Enter your password"),
               obscureText: true,
               autocorrect: false,
               enableSuggestions: false,
               controller: passwordController),
-          const SizedBox(
-            height: 50,
-          ),
-          const Text("Confirm Password"),
+          const SizedBox(height: 20),
           TextField(
+              decoration: const InputDecoration(
+                  border: UnderlineInputBorder(),
+                  labelText: "Repeat your password"),
               obscureText: true,
               autocorrect: false,
               enableSuggestions: false,

@@ -31,7 +31,7 @@ class Overview extends StatelessWidget {
       margin: const EdgeInsets.all(20),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Container(
-          margin: EdgeInsets.only(left: 20, bottom: 20, top: 20),
+          margin: const EdgeInsets.only(left: 20, bottom: 20, top: 20),
           child: const Text(
             "Most Popular",
             style: TextStyle(
@@ -40,7 +40,7 @@ class Overview extends StatelessWidget {
             ),
           ),
         ),
-        Container(
+        SizedBox(
           height: 500,
           child: ListView(
               children: popularMovies
