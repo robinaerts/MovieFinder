@@ -1,4 +1,7 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:moviefinder/pages/main_app.dart';
 
 class CreateJoinGroup extends StatefulWidget {
   const CreateJoinGroup({Key? key}) : super(key: key);
@@ -8,11 +11,38 @@ class CreateJoinGroup extends StatefulWidget {
 }
 
 class _CreateJoinGroupState extends State<CreateJoinGroup> {
+  String createdGroupCode = "";
   final groupCodeController = TextEditingController();
 
-  Future<void> createGroup() async {}
+  Future<void> createGroup() async {
+    if (FirebaseAuth.instance.currentUser == null) return;
 
-  Future<void> joinGroup() async {}
+    String id =
+        DateTime.now().toUtc().millisecondsSinceEpoch.toString().substring(4);
+
+    await FirebaseFirestore.instance.collection("groups").doc(id).set({
+      "code": id,
+      "members": [FirebaseAuth.instance.currentUser!.uid]
+    });
+
+    Navigator.of(context).pushReplacement(MaterialPageRoute(
+      builder: (context) => const MainApp(),
+    ));
+  }
+
+  Future<void> joinGroup() async {
+    FirebaseFirestore.instance
+        .collection("groups")
+        .doc(createdGroupCode)
+        .update({
+      "members": FieldValue.arrayUnion(
+          [FirebaseAuth.instance.currentUser!.uid.toString()])
+    });
+
+    Navigator.of(context).pushReplacement(MaterialPageRoute(
+      builder: (context) => const MainApp(),
+    ));
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -25,11 +55,11 @@ class _CreateJoinGroupState extends State<CreateJoinGroup> {
               Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             const Text("Don't have a group?",
                 style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-            SizedBox(
+            const SizedBox(
               height: 10,
             ),
             ElevatedButton(
-                onPressed: createGroup, child: const Text("Create One"))
+                onPressed: createGroup, child: const Text("Create One")),
           ]),
         ),
         Container(
@@ -40,7 +70,7 @@ class _CreateJoinGroupState extends State<CreateJoinGroup> {
                 const Text("I received a code",
                     style:
                         TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-                SizedBox(
+                const SizedBox(
                   height: 10,
                 ),
                 const TextField(
@@ -49,7 +79,7 @@ class _CreateJoinGroupState extends State<CreateJoinGroup> {
                     hintText: 'Enter your 9-digit code',
                   ),
                 ),
-                SizedBox(
+                const SizedBox(
                   height: 10,
                 ),
                 OutlinedButton(
