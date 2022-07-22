@@ -14,8 +14,13 @@ class _CreateAccountState extends State<CreateAccount> {
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
   final passwordConfirmController = TextEditingController();
+  bool _loading = false;
 
   Future<void> createAccount(CreateAccount widget) async {
+    setState(() {
+      _loading = true;
+    });
+
     if (passwordController.text != passwordConfirmController.text) {
       return setState(() {
         errorMessage = "Passwords don't match";
@@ -36,6 +41,10 @@ class _CreateAccountState extends State<CreateAccount> {
         .doc(res.user!.uid)
         .set({'email': res.user!.email, 'id': res.user!.uid});
 
+    setState(() {
+      _loading = false;
+    });
+
     widget.nextStep();
   }
 
@@ -47,6 +56,7 @@ class _CreateAccountState extends State<CreateAccount> {
       child: Column(
         children: [
           TextField(
+            keyboardType: TextInputType.emailAddress,
             decoration: const InputDecoration(
                 border: UnderlineInputBorder(), labelText: "Enter your email"),
             controller: emailController,
@@ -78,9 +88,11 @@ class _CreateAccountState extends State<CreateAccount> {
                   style: TextStyle(color: Theme.of(context).errorColor),
                 )
               : const Text("")),
-          ElevatedButton(
-              onPressed: () => createAccount(widget),
-              child: const Text("Signup"))
+          _loading
+              ? const CircularProgressIndicator()
+              : ElevatedButton(
+                  onPressed: () => createAccount(widget),
+                  child: const Text("Signup"))
         ],
       ),
     );

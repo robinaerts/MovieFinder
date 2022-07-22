@@ -13,9 +13,14 @@ class CreateJoinGroup extends StatefulWidget {
 class _CreateJoinGroupState extends State<CreateJoinGroup> {
   String createdGroupCode = "";
   final groupCodeController = TextEditingController();
+  bool _loading = false;
 
   Future<void> createGroup() async {
     if (FirebaseAuth.instance.currentUser == null) return;
+
+    setState(() {
+      _loading = true;
+    });
 
     String id =
         DateTime.now().toUtc().millisecondsSinceEpoch.toString().substring(4);
@@ -31,9 +36,13 @@ class _CreateJoinGroupState extends State<CreateJoinGroup> {
   }
 
   Future<void> joinGroup() async {
+    setState(() {
+      _loading = true;
+    });
+
     FirebaseFirestore.instance
         .collection("groups")
-        .doc(createdGroupCode)
+        .doc(groupCodeController.text)
         .update({
       "members": FieldValue.arrayUnion(
           [FirebaseAuth.instance.currentUser!.uid.toString()])
@@ -58,8 +67,10 @@ class _CreateJoinGroupState extends State<CreateJoinGroup> {
             const SizedBox(
               height: 10,
             ),
-            ElevatedButton(
-                onPressed: createGroup, child: const Text("Create One")),
+            _loading
+                ? const CircularProgressIndicator()
+                : ElevatedButton(
+                    onPressed: createGroup, child: const Text("Create One")),
           ]),
         ),
         Container(
@@ -73,8 +84,10 @@ class _CreateJoinGroupState extends State<CreateJoinGroup> {
                 const SizedBox(
                   height: 10,
                 ),
-                const TextField(
-                  decoration: InputDecoration(
+                TextField(
+                  controller: groupCodeController,
+                  keyboardType: TextInputType.number,
+                  decoration: const InputDecoration(
                     border: OutlineInputBorder(),
                     hintText: 'Enter your 9-digit code',
                   ),
@@ -82,8 +95,10 @@ class _CreateJoinGroupState extends State<CreateJoinGroup> {
                 const SizedBox(
                   height: 10,
                 ),
-                OutlinedButton(
-                    onPressed: joinGroup, child: const Text("Join Group"))
+                _loading
+                    ? const CircularProgressIndicator()
+                    : OutlinedButton(
+                        onPressed: joinGroup, child: const Text("Join Group"))
               ],
             ))
       ],

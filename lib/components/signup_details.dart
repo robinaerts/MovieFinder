@@ -14,11 +14,15 @@ class AddAcountDetailsState extends State<AddAcountDetails> {
   final fnameController = TextEditingController();
   final lnameController = TextEditingController();
   final usernameController = TextEditingController();
+  bool _loading = false;
 
   Future addDetails(AddAcountDetails widget) async {
     if (fnameController.text.isEmpty ||
         lnameController.text.isEmpty ||
         usernameController.text.isEmpty) return;
+    setState(() {
+      _loading = true;
+    });
 
     User currentuser = FirebaseAuth.instance.currentUser!;
 
@@ -27,7 +31,9 @@ class AddAcountDetailsState extends State<AddAcountDetails> {
       "lastname": lnameController.text,
       "username": usernameController.text
     });
-
+    setState(() {
+      _loading = false;
+    });
     widget.nextStep();
   }
 
@@ -53,9 +59,11 @@ class AddAcountDetailsState extends State<AddAcountDetails> {
         const SizedBox(
           height: 40,
         ),
-        ElevatedButton(
-            onPressed: () => addDetails(widget),
-            child: const Text("Add Details"))
+        _loading
+            ? const CircularProgressIndicator()
+            : ElevatedButton(
+                onPressed: () => addDetails(widget),
+                child: const Text("Add Details"))
       ],
     );
   }

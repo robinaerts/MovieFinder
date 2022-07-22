@@ -1,11 +1,13 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:moviefinder/pages/home.dart';
 
 class Profile extends StatelessWidget {
   Profile({Key? key}) : super(key: key);
 
-  Future logout() async {
+  Future logout(BuildContext ctx) async {
     await FirebaseAuth.instance.signOut();
+    Navigator.pushReplacement(ctx, MaterialPageRoute(builder: (ctx) => Home()));
   }
 
   final User _user = FirebaseAuth.instance.currentUser!;
@@ -20,7 +22,7 @@ class Profile extends StatelessWidget {
         SizedBox(
           width: 100,
           child: OutlinedButton(
-            onPressed: logout,
+            onPressed: () => logout(context),
             child: Row(children: const [Icon(Icons.logout), Text("Logout")]),
           ),
         )
