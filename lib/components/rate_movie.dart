@@ -1,49 +1,52 @@
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 
-class RateMovie extends StatefulWidget {
-  const RateMovie({Key? key}) : super(key: key);
+class RateMovie extends StatelessWidget {
+  final dynamic movie;
+  const RateMovie({Key? key, required this.movie}) : super(key: key);
 
-  @override
-  State<RateMovie> createState() => _RateMovieState();
-}
+  Future<void> _launchUrl() async {
+    final Uri trailer = Uri.parse(
+        "https://www.youtube.com/results?search_query=${movie['original_title']} trailer");
+    if (!await launchUrl(trailer)) return;
+  }
 
-class _RateMovieState extends State<RateMovie> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 400,
+      height: 600,
       alignment: Alignment.topCenter,
       margin: const EdgeInsets.only(top: 20),
       child: FractionallySizedBox(
-        widthFactor: 0.9,
+        widthFactor: 0.8,
         child: Card(
+          elevation: 4,
           child: Container(
             padding: const EdgeInsets.all(12),
             child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
-                  const Text("Image"),
-                  const Text("TITLE"),
-                  const Text(
-                    "Movie Description some dummy text to tell the main lines of the movie",
+                  Image.network(
+                      'https://image.tmdb.org/t/p/w300/${movie["backdrop_path"]}'),
+                  Text(
+                    movie["original_title"],
+                    style: const TextStyle(
+                        fontWeight: FontWeight.bold, fontSize: 16),
+                  ),
+                  Text(
+                    movie["overview"],
                     textAlign: TextAlign.center,
                   ),
                   Column(
-                    children: const [
-                      Text("CAST: ",
+                    children: [
+                      const Text("RATING",
                           style: TextStyle(fontWeight: FontWeight.bold)),
-                      Text("Actor 1, Actor 2, Actor 3"),
+                      Text(movie["vote_average"].toString()),
                     ],
                   ),
-                  Column(
-                    children: const [
-                      Text("RATING",
-                          style: TextStyle(fontWeight: FontWeight.bold)),
-                      Text("7.2"),
-                    ],
-                  ),
-                  OutlinedButton(onPressed: () {}, child: const Text("Trailer"))
+                  OutlinedButton(
+                      onPressed: _launchUrl, child: const Text("Trailer"))
                 ]),
           ),
         ),

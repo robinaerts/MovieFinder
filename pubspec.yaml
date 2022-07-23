@@ -12,11 +12,12 @@ dependencies:
   flutter:
     sdk: flutter
 
+  http: ^0.13.4
   cupertino_icons: ^1.0.2
   google_fonts: 3.0.1
   cloud_firestore: ^3.3.0
   firebase_auth: ^3.4.2
-  modal_progress_hud_nsn: ^0.2.1
+  url_launcher: ^6.1.5
 
 dev_dependencies:
   flutter_test:
