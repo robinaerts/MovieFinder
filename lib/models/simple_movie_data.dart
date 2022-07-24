@@ -6,6 +6,10 @@ class SimpleMovieData {
   int likedCount;
   int dislikedCount;
 
+  double getPercentage() {
+    return likedCount / (likedCount + dislikedCount);
+  }
+
   SimpleMovieData(
       {required this.title,
       required this.genre,
