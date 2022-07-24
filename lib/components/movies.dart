@@ -1,4 +1,6 @@
 import 'dart:convert';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:http/http.dart' as http;
 import '../secrets.dart';
 import './rate_movie.dart';
@@ -18,6 +20,24 @@ class _MoviesState extends State<Movies> {
   void nextMovie() {
     setState(() {
       movieNumber++;
+    });
+  }
+
+  Future<void> ratedMovie({required bool liked}) async {
+    final User user = FirebaseAuth.instance.currentUser!;
+    await FirebaseFirestore.instance.doc("users/${user.uid}").update({
+      "rated": FieldValue.arrayUnion([
+        {
+          'movieId': movies[movieNumber]["id"],
+          'liked': liked,
+          'movieTitle': movies[movieNumber]["original_title"],
+          "moviePoster": movies[movieNumber]["poster_path"],
+        }
+      ])
+    });
+
+    setState(() {
+      nextMovie();
     });
   }
 
@@ -55,7 +75,23 @@ class _MoviesState extends State<Movies> {
                   },
                 )
               : RateMovie(movie: movies[movieNumber]),
-          ElevatedButton(onPressed: nextMovie, child: const Text("Next"))
+          SizedBox(
+            width: double.infinity,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                IconButton(
+                    onPressed: () => ratedMovie(liked: false),
+                    icon: const Icon(
+                      Icons.thumb_down,
+                      color: Colors.blueAccent,
+                    )),
+                IconButton(
+                    onPressed: () => ratedMovie(liked: true),
+                    icon: const Icon(Icons.favorite, color: Colors.blueAccent))
+              ],
+            ),
+          )
         ],
       ),
     );

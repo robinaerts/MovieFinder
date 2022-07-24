@@ -1,29 +1,82 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import "package:flutter/material.dart";
 import '../models/simple_movie_data.dart';
 
-class Overview extends StatelessWidget {
+class Overview extends StatefulWidget {
   Overview({Key? key}) : super(key: key);
 
-  final popularMovies = [
-    SimpleMovieData(
-        title: "Harry Potter",
-        genre: "Fantasy",
-        img:
-            "https://d1w7fb2mkkr3kw.cloudfront.net/assets/images/book/lrg/9781/7805/9781780548371.jpg",
-        id: "m1"),
-    SimpleMovieData(
-        title: "Die Hard",
-        genre: "Action",
-        img:
-            "https://sacramento.downtowngrid.com/wp-content/uploads/2019/10/Die-Square-700x700.jpg",
-        id: "m2"),
-    SimpleMovieData(
-        title: "Snowwhite",
-        genre: "Fairy Tale",
-        img:
-            "https://images-wixmp-ed30a86b8c4ca887773594c2.wixmp.com/f/0d7f10a8-159b-4916-9ab4-fae3a5fefb62/de3pfgg-9f9b72c6-87f2-4dba-b74c-b3effa0feefd.jpg/v1/fill/w_1280,h_1280,q_75,strp/snow_white__disney__square_by_alittlecuriousfan99_de3pfgg-fullview.jpg?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1cm46YXBwOjdlMGQxODg5ODIyNjQzNzNhNWYwZDQxNWVhMGQyNmUwIiwiaXNzIjoidXJuOmFwcDo3ZTBkMTg4OTgyMjY0MzczYTVmMGQ0MTVlYTBkMjZlMCIsIm9iaiI6W1t7ImhlaWdodCI6Ijw9MTI4MCIsInBhdGgiOiJcL2ZcLzBkN2YxMGE4LTE1OWItNDkxNi05YWI0LWZhZTNhNWZlZmI2MlwvZGUzcGZnZy05ZjliNzJjNi04N2YyLTRkYmEtYjc0Yy1iM2VmZmEwZmVlZmQuanBnIiwid2lkdGgiOiI8PTEyODAifV1dLCJhdWQiOlsidXJuOnNlcnZpY2U6aW1hZ2Uub3BlcmF0aW9ucyJdfQ.hMjcvNO5mHeE8pWUggYRepBErZ9C1WeTcHYbRCJVnss",
-        id: "m3"),
-  ];
+  @override
+  State<Overview> createState() => _OverviewState();
+}
+
+class _OverviewState extends State<Overview> {
+  var popularMovies = [];
+
+  void getBestChoises() {
+    FirebaseFirestore.instance
+        .collection("groups")
+        .where("members", arrayContains: FirebaseAuth.instance.currentUser!.uid)
+        .get()
+        .then((snapshot) async {
+      dynamic members = snapshot.docs[0].data()["members"];
+      var users = [];
+      for (var member in members) {
+        var user = await FirebaseFirestore.instance.doc("users/$member").get();
+        users.add(user.data());
+      }
+      var tempPopular = [...popularMovies];
+      for (var user in users) {
+        for (var rate in user["rated"]) {
+          if (rate["liked"]) {
+            if ((tempPopular.singleWhere(
+                    (element) => element.id == rate["movieId"].toString(),
+                    orElse: () => null)) !=
+                null) {
+              tempPopular
+                  .singleWhere(
+                      (element) => element.id == rate["movieId"].toString())
+                  .likedCount++;
+            } else {
+              tempPopular.add(SimpleMovieData(
+                  title: rate["movieTitle"],
+                  genre: "WIP",
+                  id: rate["movieId"].toString(),
+                  img: 'http://image.tmdb.org/t/p/w92${rate["moviePoster"]}',
+                  likedCount: 1,
+                  dislikedCount: 0));
+            }
+          } else {
+            if ((tempPopular.singleWhere(
+                    (element) => element.id == rate["movieId"].toString(),
+                    orElse: () => null)) !=
+                null) {
+              tempPopular
+                  .singleWhere(
+                      (element) => element.id == rate["movieId"].toString())
+                  .dislikedCount++;
+            } else {
+              tempPopular.add(SimpleMovieData(
+                  title: rate["movieTitle"],
+                  genre: "WIP",
+                  id: rate["movieId"].toString(),
+                  img: 'http://image.tmdb.org/t/p/w92${rate["moviePoster"]}',
+                  likedCount: 0,
+                  dislikedCount: 1));
+            }
+          }
+        }
+      }
+      setState(() {
+        popularMovies = [...tempPopular];
+      });
+    });
+  }
+
+  @override
+  void initState() {
+    getBestChoises();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -49,7 +102,8 @@ class Overview extends StatelessWidget {
                       leading: Image.network(movie.img, fit: BoxFit.contain),
                       title: Text(movie.title,
                           style: const TextStyle(fontWeight: FontWeight.bold)),
-                      subtitle: Text(movie.genre),
+                      subtitle: Text(
+                          "Liked: ${movie.likedCount} / ${movie.dislikedCount + movie.likedCount}"),
                       trailing: IconButton(
                         onPressed: () {},
                         icon: const Icon(Icons.launch),

@@ -13,41 +13,43 @@ class RateMovie extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      height: 600,
-      alignment: Alignment.topCenter,
-      margin: const EdgeInsets.only(top: 20),
-      child: FractionallySizedBox(
-        widthFactor: 0.8,
-        child: Card(
-          elevation: 4,
-          child: Container(
-            padding: const EdgeInsets.all(12),
-            child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [
-                  Image.network(
-                      'https://image.tmdb.org/t/p/w300/${movie["backdrop_path"]}'),
-                  Text(
-                    movie["original_title"],
-                    style: const TextStyle(
-                        fontWeight: FontWeight.bold, fontSize: 16),
-                  ),
-                  Text(
-                    movie["overview"],
-                    textAlign: TextAlign.center,
-                  ),
-                  Column(
-                    children: [
-                      const Text("RATING",
-                          style: TextStyle(fontWeight: FontWeight.bold)),
-                      Text(movie["vote_average"].toString()),
-                    ],
-                  ),
-                  OutlinedButton(
-                      onPressed: _launchUrl, child: const Text("Trailer"))
-                ]),
+    return GestureDetector(
+      child: Container(
+        height: 600,
+        alignment: Alignment.topCenter,
+        margin: const EdgeInsets.only(top: 20),
+        child: FractionallySizedBox(
+          widthFactor: 0.8,
+          child: Card(
+            elevation: 4,
+            child: Container(
+              padding: const EdgeInsets.all(12),
+              child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    Image.network(
+                        'https://image.tmdb.org/t/p/w300/${movie["backdrop_path"]}'),
+                    Text(
+                      movie["original_title"],
+                      style: const TextStyle(
+                          fontWeight: FontWeight.bold, fontSize: 16),
+                    ),
+                    Text(
+                      movie["overview"],
+                      textAlign: TextAlign.center,
+                    ),
+                    Column(
+                      children: [
+                        const Text("RATING",
+                            style: TextStyle(fontWeight: FontWeight.bold)),
+                        Text(movie["vote_average"].toString()),
+                      ],
+                    ),
+                    OutlinedButton(
+                        onPressed: _launchUrl, child: const Text("Trailer"))
+                  ]),
+            ),
           ),
         ),
       ),
