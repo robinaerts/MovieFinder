@@ -96,24 +96,22 @@ class _OverviewState extends State<Overview> {
           ),
         ),
         SizedBox(
-          height: 500,
-          child: ListView(
-              children: popularMovies
-                  .map(
-                    (movie) => ListTile(
-                      leading: Image.network(movie.img, fit: BoxFit.contain),
-                      title: Text(movie.title,
-                          style: const TextStyle(fontWeight: FontWeight.bold)),
-                      subtitle: Text(
-                          "Liked: ${movie.likedCount} / ${movie.dislikedCount + movie.likedCount}"),
-                      trailing: IconButton(
-                        onPressed: () {},
-                        icon: const Icon(Icons.launch),
-                      ),
-                    ),
-                  )
-                  .toList()),
-        )
+            height: 500,
+            child: ListView.builder(
+              itemCount: popularMovies.length,
+              itemBuilder: (context, index) => ListTile(
+                leading: Image.network(popularMovies[index].img,
+                    fit: BoxFit.contain),
+                title: Text(popularMovies[index].title,
+                    style: const TextStyle(fontWeight: FontWeight.bold)),
+                subtitle: Text(
+                    "Liked: ${popularMovies[index].likedCount} / ${popularMovies[index].dislikedCount + popularMovies[index].likedCount}"),
+                trailing: IconButton(
+                  onPressed: () {},
+                  icon: const Icon(Icons.launch),
+                ),
+              ),
+            )),
       ]),
     );
   }

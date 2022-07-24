@@ -15,6 +15,7 @@ class Movies extends StatefulWidget {
 
 class _MoviesState extends State<Movies> {
   int movieNumber = 0;
+  int page = 1;
   var movies;
 
   void nextMovie() {
@@ -41,13 +42,27 @@ class _MoviesState extends State<Movies> {
     });
   }
 
-  Future<List<dynamic>> getPopularMovies({int page = 1}) async {
+  Future<List<dynamic>> getPopularMovies() async {
+    var userid = FirebaseAuth.instance.currentUser!.uid;
+    var snapshot = await FirebaseFirestore.instance.doc("users/$userid").get();
+    var rated = snapshot.data()!["rated"];
     Uri url = Uri.parse(
         'https://api.themoviedb.org/3/movie/popular?api_key=$mdbKey&page=$page');
     var response = await http.get(url);
     dynamic temp = jsonDecode(response.body)["results"];
-    setState(() => {movies = temp});
-    return temp;
+    var exclusiveMovies = [];
+
+    for (var movie in temp) {
+      if ((rated.singleWhere((rate) => rate["movieId"] == movie["id"],
+              orElse: () => null)) !=
+          null) {
+      } else {
+        exclusiveMovies.add(movie);
+      }
+    }
+    setState(() => {movies = exclusiveMovies});
+    page++;
+    return exclusiveMovies;
   }
 
   @override
@@ -55,7 +70,7 @@ class _MoviesState extends State<Movies> {
     return SingleChildScrollView(
       child: Column(
         children: [
-          (movies == null)
+          (movies == null || movieNumber >= movies.length)
               ? FutureBuilder(
                   future: getPopularMovies(),
                   builder: (BuildContext context,
