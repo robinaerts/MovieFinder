@@ -41,6 +41,8 @@ class _CreateAccountState extends State<CreateAccount> {
         .doc(res.user!.uid)
         .set({'email': res.user!.email, 'id': res.user!.uid});
 
+    await FirebaseAuth.instance.currentUser!.sendEmailVerification();
+
     setState(() {
       _loading = false;
     });

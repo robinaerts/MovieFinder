@@ -67,8 +67,11 @@ class _OverviewState extends State<Overview> {
           }
         }
       }
-      tempPopular
-          .sort(((a, b) => b.getPercentage().compareTo(a.getPercentage())));
+      tempPopular.sort(((a, b) {
+        double bPercentage = b.likedCount / members.length;
+        double aPercentage = a.likedCount / members.length;
+        return bPercentage.compareTo(aPercentage);
+      }));
       setState(() {
         popularMovies = [...tempPopular];
       });

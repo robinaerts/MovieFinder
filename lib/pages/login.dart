@@ -34,16 +34,17 @@ class _LoginState extends State<Login> {
       body: Container(
         margin: const EdgeInsets.all(30),
         child: Column(children: [
-          const Text(
-            "Email",
-            style: TextStyle(fontWeight: FontWeight.bold),
-          ),
           TextField(
+            keyboardType: TextInputType.emailAddress,
+            decoration: const InputDecoration(
+                border: UnderlineInputBorder(), labelText: "Enter your email"),
             controller: emailController,
           ),
           const SizedBox(height: 50),
-          const Text("Password", style: TextStyle(fontWeight: FontWeight.bold)),
           TextField(
+            decoration: const InputDecoration(
+                border: UnderlineInputBorder(),
+                labelText: "Enter your password"),
             obscureText: true,
             enableSuggestions: false,
             autocorrect: false,
@@ -60,7 +61,7 @@ class _LoginState extends State<Login> {
           ),
           TextButton(
             onPressed: () {
-              Navigator.of(context).pushReplacement(
+              Navigator.of(context).push(
                   MaterialPageRoute(builder: (context) => const Signup()));
             },
             child: const Text("Don't have an account? Signup"),

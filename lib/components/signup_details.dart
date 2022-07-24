@@ -29,7 +29,8 @@ class AddAcountDetailsState extends State<AddAcountDetails> {
     await FirebaseFirestore.instance.doc("users/${currentuser.uid}").update({
       "firstname": fnameController.text,
       "lastname": lnameController.text,
-      "username": usernameController.text
+      "username": usernameController.text,
+      "rated": []
     });
     setState(() {
       _loading = false;
