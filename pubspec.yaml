@@ -20,6 +20,8 @@ dependencies:
   url_launcher: ^6.1.5
   appinio_swiper: ^1.0.3
   shared_preferences: ^2.0.15
+  country_list_pick: ^1.0.1+6
+  skeleton_text: ^3.0.0
 
 dev_dependencies:
   flutter_test:

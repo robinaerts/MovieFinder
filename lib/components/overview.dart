@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import "package:flutter/material.dart";
 import 'package:moviefinder/pages/movie_info.dart';
 import '../models/simple_movie_data.dart';
+import 'package:skeleton_text/skeleton_text.dart';
 
 class Overview extends StatefulWidget {
   const Overview({Key? key}) : super(key: key);
@@ -86,40 +87,119 @@ class _OverviewState extends State<Overview> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.all(20),
-      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Container(
-          margin: const EdgeInsets.only(left: 20, bottom: 20, top: 20),
-          child: const Text(
-            "Most Popular",
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-              fontSize: 20,
-            ),
-          ),
-        ),
-        SizedBox(
-            height: 500,
-            child: ListView.builder(
-              itemCount: popularMovies.length,
-              itemBuilder: (context, index) => ListTile(
-                leading: Image.network(popularMovies[index].img,
-                    fit: BoxFit.contain),
-                title: Text(popularMovies[index].title,
-                    style: const TextStyle(fontWeight: FontWeight.bold)),
-                subtitle: Text(
-                    "Liked: ${popularMovies[index].likedCount} / ${popularMovies[index].dislikedCount + popularMovies[index].likedCount}"),
-                trailing: IconButton(
-                  onPressed: () => Navigator.of(context).push(MaterialPageRoute(
-                    builder: (context) =>
-                        MovieInfo(movieId: popularMovies[index].id),
-                  )),
-                  icon: const Icon(Icons.launch),
+    return SingleChildScrollView(
+      child: Container(
+          margin: const EdgeInsets.all(20),
+          child:
+              Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Container(
+              margin: const EdgeInsets.only(left: 20, bottom: 20, top: 20),
+              child: const Text(
+                "Most Popular",
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 20,
                 ),
               ),
-            )),
-      ]),
+            ),
+            SizedBox(
+                height: 400,
+                child: popularMovies.length > 0
+                    ? ListView.builder(
+                        itemCount: 10,
+                        itemBuilder: (context, index) => ListTile(
+                          leading: Image.network(popularMovies[index].img,
+                              fit: BoxFit.contain),
+                          title: Text(popularMovies[index].title,
+                              style:
+                                  const TextStyle(fontWeight: FontWeight.bold)),
+                          subtitle: Text(
+                              "Liked: ${popularMovies[index].likedCount} / ${popularMovies[index].dislikedCount + popularMovies[index].likedCount}"),
+                          trailing: IconButton(
+                            onPressed: () =>
+                                Navigator.of(context).push(MaterialPageRoute(
+                              builder: (context) =>
+                                  MovieInfo(movieId: popularMovies[index].id),
+                            )),
+                            icon: const Icon(Icons.launch),
+                          ),
+                        ),
+                      )
+                    : ListView.builder(
+                        itemCount: 5,
+                        itemBuilder: (BuildContext context, int index) {
+                          return Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Container(
+                                  decoration: const BoxDecoration(
+                                      borderRadius: BorderRadius.all(
+                                          Radius.circular(10.0)),
+                                      color: Colors.white70),
+                                  child: Row(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.center,
+                                    mainAxisSize: MainAxisSize.max,
+                                    mainAxisAlignment: MainAxisAlignment.start,
+                                    children: <Widget>[
+                                      SkeletonAnimation(
+                                        child: Container(
+                                          width: 70.0,
+                                          height: 70.0,
+                                          decoration: BoxDecoration(
+                                            color: Colors.grey[300],
+                                          ),
+                                        ),
+                                      ),
+                                      Column(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceEvenly,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        mainAxisSize: MainAxisSize.max,
+                                        children: <Widget>[
+                                          Padding(
+                                            padding: const EdgeInsets.only(
+                                                left: 15.0, bottom: 5.0),
+                                            child: SkeletonAnimation(
+                                              child: Container(
+                                                height: 15,
+                                                width: MediaQuery.of(context)
+                                                        .size
+                                                        .width *
+                                                    0.6,
+                                                decoration: BoxDecoration(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            10.0),
+                                                    color: Colors.grey[300]),
+                                              ),
+                                            ),
+                                          ),
+                                          Padding(
+                                            padding: const EdgeInsets.only(
+                                                left: 15.0),
+                                            child: Padding(
+                                              padding: const EdgeInsets.only(
+                                                  right: 5.0),
+                                              child: SkeletonAnimation(
+                                                child: Container(
+                                                  width: 60,
+                                                  height: 13,
+                                                  decoration: BoxDecoration(
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              10.0),
+                                                      color: Colors.grey[300]),
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  )));
+                        }))
+          ])),
     );
   }
 }
