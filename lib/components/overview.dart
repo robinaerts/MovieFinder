@@ -1,10 +1,11 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import "package:flutter/material.dart";
+import 'package:moviefinder/pages/movie_info.dart';
 import '../models/simple_movie_data.dart';
 
 class Overview extends StatefulWidget {
-  Overview({Key? key}) : super(key: key);
+  const Overview({Key? key}) : super(key: key);
 
   @override
   State<Overview> createState() => _OverviewState();
@@ -110,7 +111,10 @@ class _OverviewState extends State<Overview> {
                 subtitle: Text(
                     "Liked: ${popularMovies[index].likedCount} / ${popularMovies[index].dislikedCount + popularMovies[index].likedCount}"),
                 trailing: IconButton(
-                  onPressed: () {},
+                  onPressed: () => Navigator.of(context).push(MaterialPageRoute(
+                    builder: (context) =>
+                        MovieInfo(movieId: popularMovies[index].id),
+                  )),
                   icon: const Icon(Icons.launch),
                 ),
               ),

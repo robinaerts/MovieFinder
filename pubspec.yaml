@@ -19,6 +19,7 @@ dependencies:
   firebase_auth: ^3.4.2
   url_launcher: ^6.1.5
   appinio_swiper: ^1.0.3
+  shared_preferences: ^2.0.15
 
 dev_dependencies:
   flutter_test:
