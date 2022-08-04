@@ -10,7 +10,7 @@ class Settings extends StatefulWidget {
 }
 
 class _SettingsState extends State<Settings> {
-  var currentRegion;
+  late String currentRegion;
 
   void setCode(code) async {
     var prefs = await SharedPreferences.getInstance();

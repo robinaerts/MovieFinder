@@ -1,13 +1,13 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:moviefinder/pages/home.dart';
 
 class Profile extends StatelessWidget {
   Profile({Key? key}) : super(key: key);
 
   Future logout(BuildContext ctx) async {
-    await FirebaseAuth.instance.signOut();
-    Navigator.pushReplacement(ctx, MaterialPageRoute(builder: (ctx) => Home()));
+    FirebaseAuth.instance
+        .signOut()
+        .then((_) => {Navigator.of(ctx).pushReplacementNamed("/")});
   }
 
   final User _user = FirebaseAuth.instance.currentUser!;

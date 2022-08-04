@@ -25,14 +25,10 @@ class _CreateJoinGroupState extends State<CreateJoinGroup> {
     String id =
         DateTime.now().toUtc().millisecondsSinceEpoch.toString().substring(4);
 
-    await FirebaseFirestore.instance.collection("groups").doc(id).set({
+    FirebaseFirestore.instance.collection("groups").doc(id).set({
       "code": id,
       "members": [FirebaseAuth.instance.currentUser!.uid]
-    });
-
-    Navigator.of(context).pushReplacement(MaterialPageRoute(
-      builder: (context) => const MainApp(),
-    ));
+    }).then((_) => {Navigator.of(context).pushReplacementNamed("/app")});
   }
 
   Future<void> joinGroup() async {
