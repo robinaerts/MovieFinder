@@ -49,7 +49,7 @@ class _OverviewState extends State<Overview> {
                   title: rate["movieTitle"],
                   genre: "WIP",
                   id: rate["movieId"].toString(),
-                  img: 'http://image.tmdb.org/t/p/w92${rate["moviePoster"]}',
+                  img: 'https://image.tmdb.org/t/p/w92${rate["moviePoster"]}',
                   likedCount: 1,
                   dislikedCount: 0));
             }
@@ -67,7 +67,7 @@ class _OverviewState extends State<Overview> {
                   title: rate["movieTitle"],
                   genre: "WIP",
                   id: rate["movieId"].toString(),
-                  img: 'http://image.tmdb.org/t/p/w92${rate["moviePoster"]}',
+                  img: 'https://image.tmdb.org/t/p/w92${rate["moviePoster"]}',
                   likedCount: 0,
                   dislikedCount: 1));
             }
@@ -173,7 +173,7 @@ class Recommended extends StatelessWidget {
                                   borderRadius: BorderRadius.circular(5.0),
                                   image: DecorationImage(
                                     image: NetworkImage(
-                                        "http://image.tmdb.org/t/p/w92${recommended[index]["img"]}"),
+                                        "https://image.tmdb.org/t/p/w92${recommended[index]["img"]}"),
                                     fit: BoxFit.cover,
                                   ),
                                 ),

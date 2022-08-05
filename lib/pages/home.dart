@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:url_launcher/url_launcher.dart';
 
 class Home extends StatelessWidget {
   const Home({Key? key}) : super(key: key);
@@ -38,7 +40,7 @@ class Home extends StatelessWidget {
               ),
             ),
             Container(
-              margin: const EdgeInsets.only(top: 30.0, bottom: 80),
+              margin: const EdgeInsets.only(top: 30.0, bottom: 40.0),
               child: ElevatedButton(
                   style: ButtonStyle(
                       backgroundColor: MaterialStateProperty.all<Color>(
@@ -56,6 +58,21 @@ class Home extends StatelessWidget {
                             color: Color(0xff042940))),
                   )),
             ),
+            kIsWeb
+                ? InkWell(
+                    child: const Text(
+                      'Download the free Android app!',
+                      style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white),
+                    ),
+                    onTap: () => launchUrl(Uri(
+                        path:
+                            'https://github.com/robinaerts/moviefinder/blob/main/MovieFinder.apk')),
+                  )
+                : Container(),
+            SizedBox(height: 50),
             Image.asset(
               "assets/images/movie.png",
             ),

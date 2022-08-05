@@ -7,10 +7,12 @@ import 'package:moviefinder/pages/login.dart';
 import 'package:moviefinder/pages/main_app.dart';
 import 'package:moviefinder/pages/signup.dart';
 import "firebase_options.dart";
+import 'package:url_strategy/url_strategy.dart';
 
 Future main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  setPathUrlStrategy();
   runApp(const App());
 }
 
