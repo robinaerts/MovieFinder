@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 import '../secrets.dart';
 import './rate_movie.dart';
 import "package:flutter/material.dart";
@@ -42,6 +43,33 @@ class _MoviesState extends State<Movies> {
     });
   }
 
+  Future<List<String>> getMovieProviders(String movieId) async {
+    final prefs = await SharedPreferences.getInstance();
+    bool availableOnStreaming = prefs.getBool("onlyStreaming") ?? false;
+
+    Uri providerUrl = Uri.parse(
+        "https://api.themoviedb.org/3/movie/$movieId/watch/providers?api_key=$mdbKey");
+    var providerRes = await http.get(providerUrl);
+    var providerData = jsonDecode(providerRes.body);
+    List<String> providers;
+    if (providerData["results"]["BE"] != null &&
+        providerData["results"]["BE"]["flatrate"] != null) {
+      providers = List<String>.from(providerData["results"]["BE"]["flatrate"]
+          .map((provider) => provider["provider_name"])
+          .toList());
+    } else {
+      providers = [];
+    }
+    if (availableOnStreaming &&
+        !providers.contains("Netflix") &&
+        !providers.contains("Amazon Prime") &&
+        !providers.contains("Disney Plus") &&
+        !providers.contains("Amazon Video")) {
+      providers = [];
+    }
+    return providers;
+  }
+
   Future<List<dynamic>> getPopularMovies() async {
     var userid = FirebaseAuth.instance.currentUser!.uid;
     var snapshot = await FirebaseFirestore.instance.doc("users/$userid").get();
@@ -57,7 +85,11 @@ class _MoviesState extends State<Movies> {
               orElse: () => null)) !=
           null) {
       } else {
-        exclusiveMovies.add(movie);
+        movie["providers"] = await getMovieProviders(movie["id"].toString());
+        if (movie["providers"].isNotEmpty) {
+          exclusiveMovies.add(movie);
+        }
+        // exclusiveMovies.add(movie);
       }
     }
     setState(() => {movies = exclusiveMovies});

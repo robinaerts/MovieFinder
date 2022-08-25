@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
+import "../tools/getProviderImage.dart";
 
 class RateMovie extends StatelessWidget {
   final dynamic movie;
@@ -45,6 +46,16 @@ class RateMovie extends StatelessWidget {
                             style: TextStyle(fontWeight: FontWeight.bold)),
                         Text(movie["vote_average"].toString()),
                       ],
+                    ),
+                    SizedBox(
+                      height: 30,
+                      child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            ...movie["providers"]
+                                .map((provider) => getProviderImage(provider))
+                                .toList()
+                          ]),
                     ),
                     OutlinedButton(
                         onPressed: _launchUrl, child: const Text("Trailer"))

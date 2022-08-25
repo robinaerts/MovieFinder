@@ -11,6 +11,7 @@ class Settings extends StatefulWidget {
 
 class _SettingsState extends State<Settings> {
   late String currentRegion;
+  late bool currentStreaming;
 
   void setCode(code) async {
     var prefs = await SharedPreferences.getInstance();
@@ -24,7 +25,13 @@ class _SettingsState extends State<Settings> {
     var prefs = await SharedPreferences.getInstance();
     setState(() {
       currentRegion = prefs.getString("region") ?? "US";
+      currentStreaming = prefs.getBool("onlyStreaming") ?? false;
     });
+  }
+
+  void setStreaming(bool value) async {
+    var prefs = await SharedPreferences.getInstance();
+    prefs.setBool("onlyStreaming", value);
   }
 
   @override
@@ -40,28 +47,44 @@ class _SettingsState extends State<Settings> {
       ),
       body: Container(
         margin: const EdgeInsets.all(20.0),
-        child: Row(
+        child: Column(
           children: [
-            const Text("Select your region: "),
-            CountryListPick(
-                appBar: AppBar(
-                  backgroundColor: Colors.blue,
-                  title: const Text('Pick your country'),
-                ),
+            Row(
+              children: [
+                const Text("Select your region: "),
+                CountryListPick(
+                    appBar: AppBar(
+                      backgroundColor: Colors.blue,
+                      title: const Text('Pick your country'),
+                    ),
 
-                // To disable option set to false
-                theme: CountryTheme(
-                  isShowFlag: true,
-                  isShowTitle: true,
-                  isShowCode: true,
-                  isDownIcon: true,
-                  showEnglishName: true,
+                    // To disable option set to false
+                    theme: CountryTheme(
+                      isShowFlag: true,
+                      isShowTitle: true,
+                      isShowCode: true,
+                      isDownIcon: true,
+                      showEnglishName: true,
+                    ),
+                    // Set default value
+                    initialSelection: currentRegion,
+                    onChanged: ((code) => setCode(code)),
+                    useUiOverlay: true,
+                    useSafeArea: false),
+              ],
+            ),
+            Row(
+              children: [
+                const Text(
+                    "Only show movies that are available on streaming sites"),
+                Switch(
+                  value: true,
+                  onChanged: (value) {
+                    setStreaming(value);
+                  },
                 ),
-                // Set default value
-                initialSelection: currentRegion,
-                onChanged: ((code) => setCode(code)),
-                useUiOverlay: true,
-                useSafeArea: false),
+              ],
+            )
           ],
         ),
       ),

@@ -4,6 +4,7 @@ import 'package:moviefinder/models/movie_details.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 import '../secrets.dart';
+import "../tools/getProviderImage.dart";
 
 class MovieInfo extends StatelessWidget {
   final movieId;
@@ -47,22 +48,6 @@ class MovieInfo extends StatelessWidget {
         providers: providers,
         cover: cover,
         genres: genres);
-  }
-
-  Widget getProviderImage(String providerName) {
-    switch (providerName) {
-      case "Netflix":
-        return Image.network(
-          "https://s3.amazonaws.com/ionic-marketplace/ionic-4-netflix-style-video-streaming/icon.png",
-        );
-      case "Yelo Play":
-        return Image.network(
-            "https://cdn.fing.io/images/isp/BE/logo/telenet_logo.png");
-      case "Disney Plus":
-        return Image.network("https://pic.clubic.com/v1/images/1787948/raw");
-      default:
-        return Text(providerName);
-    }
   }
 
   @override
