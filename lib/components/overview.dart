@@ -8,7 +8,6 @@ import 'package:moviefinder/secrets.dart';
 import '../models/simple_movie_data.dart';
 import 'package:skeleton_text/skeleton_text.dart';
 import 'package:http/http.dart' as http;
-import 'package:moviefinder/ad_helper.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 
 class Overview extends StatefulWidget {
@@ -21,7 +20,6 @@ class Overview extends StatefulWidget {
 class _OverviewState extends State<Overview> {
   var popularMovies = [];
   var recommended = [];
-
   BannerAd? _bannerAd;
 
   void getBestChoises() {
@@ -111,9 +109,8 @@ class _OverviewState extends State<Overview> {
 
   @override
   void initState() {
-    getBestChoises();
     BannerAd(
-      adUnitId: AdHelper.bannerAdUnitId,
+      adUnitId: "ca-app-pub-5041240051853060/9713913657",
       request: AdRequest(),
       size: AdSize.banner,
       listener: BannerAdListener(
@@ -128,6 +125,7 @@ class _OverviewState extends State<Overview> {
         },
       ),
     ).load();
+    getBestChoises();
   }
 
   @override
@@ -143,9 +141,17 @@ class _OverviewState extends State<Overview> {
           margin: const EdgeInsets.all(20),
           child: Column(
             children: [
+              if (_bannerAd != null)
+                Align(
+                  alignment: Alignment.topCenter,
+                  child: Container(
+                    width: _bannerAd!.size.width.toDouble(),
+                    height: _bannerAd!.size.height.toDouble(),
+                    child: AdWidget(ad: _bannerAd!),
+                  ),
+                ),
               PopularMovies(popularMovies: popularMovies),
               Recommended(recommended: recommended),
-              AdWidget(ad: _bannerAd!),
             ],
           )),
     );

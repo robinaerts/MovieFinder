@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import '../secrets.dart';
@@ -18,6 +19,21 @@ class _MoviesState extends State<Movies> {
   int movieNumber = 0;
   int page = 1;
   var movies;
+  BannerAd? _bannerAd;
+
+  @override
+  void initState() {
+    _bannerAd = BannerAd(
+        size: AdSize.banner,
+        adUnitId: "ca-app-pub-5041240051853060/1944718358",
+        listener: BannerAdListener(onAdLoaded: (_) {
+          setState(() {});
+        }, onAdFailedToLoad: (ad, error) {
+          ad.dispose();
+        }),
+        request: const AdRequest());
+    _bannerAd!.load();
+  }
 
   void nextMovie() {
     setState(() {
@@ -138,7 +154,16 @@ class _MoviesState extends State<Movies> {
                     icon: const Icon(Icons.favorite, color: Colors.blueAccent))
               ],
             ),
-          )
+          ),
+          if (_bannerAd != null)
+            Align(
+              alignment: Alignment.topCenter,
+              child: Container(
+                width: _bannerAd!.size.width.toDouble(),
+                height: _bannerAd!.size.height.toDouble(),
+                child: AdWidget(ad: _bannerAd!),
+              ),
+            ),
         ],
       ),
     );
