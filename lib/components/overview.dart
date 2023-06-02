@@ -8,6 +8,8 @@ import 'package:moviefinder/secrets.dart';
 import '../models/simple_movie_data.dart';
 import 'package:skeleton_text/skeleton_text.dart';
 import 'package:http/http.dart' as http;
+import 'package:moviefinder/ad_helper.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 
 class Overview extends StatefulWidget {
   const Overview({Key? key}) : super(key: key);
@@ -19,6 +21,8 @@ class Overview extends StatefulWidget {
 class _OverviewState extends State<Overview> {
   var popularMovies = [];
   var recommended = [];
+
+  BannerAd? _bannerAd;
 
   void getBestChoises() {
     FirebaseFirestore.instance
@@ -108,6 +112,28 @@ class _OverviewState extends State<Overview> {
   @override
   void initState() {
     getBestChoises();
+    BannerAd(
+      adUnitId: AdHelper.bannerAdUnitId,
+      request: AdRequest(),
+      size: AdSize.banner,
+      listener: BannerAdListener(
+        onAdLoaded: (ad) {
+          setState(() {
+            _bannerAd = ad as BannerAd;
+          });
+        },
+        onAdFailedToLoad: (ad, err) {
+          print('Failed to load a banner ad: ${err.message}');
+          ad.dispose();
+        },
+      ),
+    ).load();
+  }
+
+  @override
+  void dispose() {
+    _bannerAd?.dispose();
+    super.dispose();
   }
 
   @override
@@ -118,7 +144,8 @@ class _OverviewState extends State<Overview> {
           child: Column(
             children: [
               PopularMovies(popularMovies: popularMovies),
-              Recommended(recommended: recommended)
+              Recommended(recommended: recommended),
+              AdWidget(ad: _bannerAd!),
             ],
           )),
     );

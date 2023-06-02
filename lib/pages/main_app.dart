@@ -5,6 +5,7 @@ import 'package:moviefinder/components/overview.dart';
 import 'package:moviefinder/components/profile.dart';
 import 'package:moviefinder/pages/settings.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 
 class MainApp extends StatefulWidget {
   const MainApp({Key? key}) : super(key: key);
@@ -14,6 +15,10 @@ class MainApp extends StatefulWidget {
 }
 
 class _MainAppState extends State<MainApp> {
+  Future<InitializationStatus> _initGoogleMobileAds() {
+    return MobileAds.instance.initialize();
+  }
+
   int selectedPage = 0;
   @override
   Widget build(BuildContext context) {
