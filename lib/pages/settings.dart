@@ -36,6 +36,7 @@ class _SettingsState extends State<Settings> {
 
   @override
   void initState() {
+    super.initState();
     getCurrentRegion();
   }
 

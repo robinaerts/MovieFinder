@@ -1,7 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:moviefinder/pages/main_app.dart';
-import 'package:moviefinder/pages/signup.dart';
 
 class Login extends StatefulWidget {
   const Login({Key? key}) : super(key: key);

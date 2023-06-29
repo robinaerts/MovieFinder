@@ -91,7 +91,7 @@ class _CreateAccountState extends State<CreateAccount> {
           (errorMessage.isNotEmpty
               ? Text(
                   errorMessage,
-                  style: TextStyle(color: Theme.of(context).errorColor),
+                  style: TextStyle(color: Theme.of(context).colorScheme.error),
                 )
               : const Text("")),
           _loading

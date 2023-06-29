@@ -23,6 +23,7 @@ class _MoviesState extends State<Movies> {
 
   @override
   void initState() {
+    super.initState();
     _bannerAd = BannerAd(
         size: AdSize.banner,
         adUnitId: "ca-app-pub-5041240051853060/1944718358",
@@ -158,7 +159,7 @@ class _MoviesState extends State<Movies> {
           if (_bannerAd != null)
             Align(
               alignment: Alignment.topCenter,
-              child: Container(
+              child: SizedBox(
                 width: _bannerAd!.size.width.toDouble(),
                 height: _bannerAd!.size.height.toDouble(),
                 child: AdWidget(ad: _bannerAd!),

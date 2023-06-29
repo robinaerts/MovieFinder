@@ -1,5 +1,4 @@
 import 'dart:convert';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import "package:flutter/material.dart";
@@ -109,9 +108,10 @@ class _OverviewState extends State<Overview> {
 
   @override
   void initState() {
+    super.initState();
     BannerAd(
       adUnitId: "ca-app-pub-5041240051853060/9713913657",
-      request: AdRequest(),
+      request: const AdRequest(),
       size: AdSize.banner,
       listener: BannerAdListener(
         onAdLoaded: (ad) {
@@ -120,7 +120,6 @@ class _OverviewState extends State<Overview> {
           });
         },
         onAdFailedToLoad: (ad, err) {
-          print('Failed to load a banner ad: ${err.message}');
           ad.dispose();
         },
       ),
@@ -144,7 +143,7 @@ class _OverviewState extends State<Overview> {
               if (_bannerAd != null)
                 Align(
                   alignment: Alignment.topCenter,
-                  child: Container(
+                  child: SizedBox(
                     width: _bannerAd!.size.width.toDouble(),
                     height: _bannerAd!.size.height.toDouble(),
                     child: AdWidget(ad: _bannerAd!),

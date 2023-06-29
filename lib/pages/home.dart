@@ -67,12 +67,11 @@ class Home extends StatelessWidget {
                           fontWeight: FontWeight.bold,
                           color: Colors.white),
                     ),
-                    onTap: () => launchUrl(Uri(
-                        path:
-                            'https://github.com/robinaerts/moviefinder/blob/main/MovieFinder.apk')),
+                    onTap: () => launch(
+                        'https://play.google.com/store/apps/details?id=com.robyte.moviefinder'),
                   )
                 : Container(),
-            SizedBox(height: 50),
+            const SizedBox(height: 50),
             Image.asset(
               "assets/images/movie.png",
             ),

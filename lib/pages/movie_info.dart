@@ -7,7 +7,7 @@ import '../secrets.dart';
 import "../tools/getProviderImage.dart";
 
 class MovieInfo extends StatelessWidget {
-  final movieId;
+  final String movieId;
   const MovieInfo({Key? key, required this.movieId}) : super(key: key);
 
   Future<MovieDetails> _getAllData() async {
