@@ -3,7 +3,7 @@
 <h1>MakeProject</h1>
 
 <div>
-    <a href="https://moviefinder-fe7dc.web.app/">Live Preview</a>
+    <a href="https://moviefinder.robyte.me/">Live Preview</a>
     ·
         <a href="https://github.com/robinaerts/moviefinder/issues">Report Bug</a>
     ·
@@ -42,8 +42,8 @@ MovieFinder is an easy to use application to choose movies for groups. Everyone 
 
 ### Live Demo
 
-- [Web](https://moviefinder-fe7dc.web.app/)
-- [Android (APK)](https://github.com/robinaerts/MovieFinder/blob/main/MovieFinderV1.apk)
+- [Web](https://moviefinder.robyte.me/)
+- [Android](https://play.google.com/store/apps/details?id=com.robyte.moviefinder)
 
 
 <br/>
