@@ -1,6 +1,6 @@
 <div align="center">
 
-<h1>MakeProject</h1>
+<h1>MovieFinder</h1>
 
 <div>
     <a href="https://moviefinder.robyte.me/">Live Preview</a>
