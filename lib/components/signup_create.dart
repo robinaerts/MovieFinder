@@ -24,17 +24,15 @@ class _CreateAccountState extends State<CreateAccount> {
     if (passwordController.text != passwordConfirmController.text) {
       return setState(() {
         errorMessage = "Passwords don't match";
+        _loading = false;
       });
     }
     if (emailController.text.isEmpty || passwordController.text.isEmpty) {
-      setState(() {
+      return setState(() {
         errorMessage = "You forgot one or more fields";
+        _loading = false;
       });
     }
-
-    setState(() {
-      _loading = false;
-    });
 
     UserCredential res = await FirebaseAuth.instance
         .createUserWithEmailAndPassword(

@@ -17,7 +17,7 @@ class Overview extends StatefulWidget {
 }
 
 class _OverviewState extends State<Overview> {
-  var popularMovies = [];
+  List popularMovies = ["loading"];
   var recommended = [];
   BannerAd? _bannerAd;
 
@@ -27,13 +27,18 @@ class _OverviewState extends State<Overview> {
         .where("members", arrayContains: FirebaseAuth.instance.currentUser!.uid)
         .get()
         .then((snapshot) async {
+      if (snapshot.docs.isEmpty) {
+        return setState(() {
+          popularMovies = ["no group"];
+        });
+      }
       dynamic members = snapshot.docs[0].data()["members"];
       var users = [];
       for (var member in members) {
         var user = await FirebaseFirestore.instance.doc("users/$member").get();
         users.add(user.data());
       }
-      var tempPopular = [...popularMovies];
+      var tempPopular = [];
       for (var user in users) {
         for (var rate in user["rated"]) {
           if (rate["liked"]) {
@@ -221,7 +226,9 @@ class Recommended extends StatelessWidget {
                             ])),
                       )),
             )
-          : const Text("No recommendations")
+          : Container(
+              margin: const EdgeInsets.only(left: 20),
+              child: const Text("No recommendations"))
     ]);
   }
 }
@@ -249,96 +256,113 @@ class PopularMovies extends StatelessWidget {
       ),
       SizedBox(
           height: 400,
-          child: popularMovies.isNotEmpty
-              ? ListView.builder(
-                  itemCount: 10,
-                  itemBuilder: (context, index) => ListTile(
-                    leading: Image.network(popularMovies[index].img,
-                        fit: BoxFit.contain),
-                    title: Text(popularMovies[index].title,
-                        style: const TextStyle(fontWeight: FontWeight.bold)),
-                    subtitle: Text(
-                        "Liked: ${popularMovies[index].likedCount} / ${popularMovies[index].dislikedCount + popularMovies[index].likedCount}"),
-                    trailing: IconButton(
-                      onPressed: () =>
-                          Navigator.of(context).push(MaterialPageRoute(
-                        builder: (context) =>
-                            MovieInfo(movieId: popularMovies[index].id),
-                      )),
-                      icon: const Icon(Icons.launch),
-                    ),
-                  ),
-                )
-              : ListView.builder(
-                  itemCount: 5,
-                  itemBuilder: (BuildContext context, int index) {
-                    return Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Container(
-                            decoration: const BoxDecoration(
-                                borderRadius:
-                                    BorderRadius.all(Radius.circular(10.0)),
-                                color: Colors.white70),
-                            child: Row(
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              mainAxisSize: MainAxisSize.max,
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              children: <Widget>[
-                                SkeletonAnimation(
-                                  child: Container(
-                                    width: 70.0,
-                                    height: 70.0,
-                                    decoration: BoxDecoration(
-                                      color: Colors.grey[300],
-                                    ),
-                                  ),
-                                ),
-                                Column(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceEvenly,
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  mainAxisSize: MainAxisSize.max,
-                                  children: <Widget>[
-                                    Padding(
-                                      padding: const EdgeInsets.only(
-                                          left: 15.0, bottom: 5.0),
-                                      child: SkeletonAnimation(
-                                        child: Container(
-                                          height: 15,
-                                          width: MediaQuery.of(context)
-                                                  .size
-                                                  .width *
-                                              0.6,
-                                          decoration: BoxDecoration(
-                                              borderRadius:
-                                                  BorderRadius.circular(10.0),
-                                              color: Colors.grey[300]),
-                                        ),
-                                      ),
-                                    ),
-                                    Padding(
-                                      padding:
-                                          const EdgeInsets.only(left: 15.0),
-                                      child: Padding(
-                                        padding:
-                                            const EdgeInsets.only(right: 5.0),
-                                        child: SkeletonAnimation(
+          child: popularMovies.isEmpty
+              ? Container(
+                  alignment: Alignment.topLeft,
+                  margin: const EdgeInsets.only(left: 20),
+                  child: const Text("You haven't rated any movies yet"))
+              : popularMovies[0] == "no group"
+                  ? Container(
+                      alignment: Alignment.topLeft,
+                      margin: const EdgeInsets.only(left: 20),
+                      child: const Text("Join a group to see results"))
+                  : popularMovies[0] != "loading"
+                      ? ListView.builder(
+                          itemCount: popularMovies.length,
+                          itemBuilder: (context, index) => ListTile(
+                            leading: Image.network(popularMovies[index].img,
+                                fit: BoxFit.contain),
+                            title: Text(popularMovies[index].title,
+                                style: const TextStyle(
+                                    fontWeight: FontWeight.bold)),
+                            subtitle: Text(
+                                "Liked: ${popularMovies[index].likedCount} / ${popularMovies[index].dislikedCount + popularMovies[index].likedCount}"),
+                            trailing: IconButton(
+                              onPressed: () =>
+                                  Navigator.of(context).push(MaterialPageRoute(
+                                builder: (context) =>
+                                    MovieInfo(movieId: popularMovies[index].id),
+                              )),
+                              icon: const Icon(Icons.launch),
+                            ),
+                          ),
+                        )
+                      : ListView.builder(
+                          itemCount: 5,
+                          itemBuilder: (BuildContext context, int index) {
+                            return Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: Container(
+                                    decoration: const BoxDecoration(
+                                        borderRadius: BorderRadius.all(
+                                            Radius.circular(10.0)),
+                                        color: Colors.white70),
+                                    child: Row(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.center,
+                                      mainAxisSize: MainAxisSize.max,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.start,
+                                      children: <Widget>[
+                                        SkeletonAnimation(
                                           child: Container(
-                                            width: 60,
-                                            height: 13,
+                                            width: 70.0,
+                                            height: 70.0,
                                             decoration: BoxDecoration(
-                                                borderRadius:
-                                                    BorderRadius.circular(10.0),
-                                                color: Colors.grey[300]),
+                                              color: Colors.grey[300],
+                                            ),
                                           ),
                                         ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            )));
-                  })),
+                                        Column(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceEvenly,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          mainAxisSize: MainAxisSize.max,
+                                          children: <Widget>[
+                                            Padding(
+                                              padding: const EdgeInsets.only(
+                                                  left: 15.0, bottom: 5.0),
+                                              child: SkeletonAnimation(
+                                                child: Container(
+                                                  height: 15,
+                                                  width: MediaQuery.of(context)
+                                                          .size
+                                                          .width *
+                                                      0.6,
+                                                  decoration: BoxDecoration(
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              10.0),
+                                                      color: Colors.grey[300]),
+                                                ),
+                                              ),
+                                            ),
+                                            Padding(
+                                              padding: const EdgeInsets.only(
+                                                  left: 15.0),
+                                              child: Padding(
+                                                padding: const EdgeInsets.only(
+                                                    right: 5.0),
+                                                child: SkeletonAnimation(
+                                                  child: Container(
+                                                    width: 60,
+                                                    height: 13,
+                                                    decoration: BoxDecoration(
+                                                        borderRadius:
+                                                            BorderRadius
+                                                                .circular(10.0),
+                                                        color:
+                                                            Colors.grey[300]),
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ],
+                                    )));
+                          })),
     ]);
   }
 }

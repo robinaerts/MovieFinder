@@ -109,7 +109,7 @@ class _MoviesState extends State<Movies> {
         // exclusiveMovies.add(movie);
       }
     }
-    setState(() => {movies = exclusiveMovies});
+    setState(() => movies = exclusiveMovies);
     page++;
     return exclusiveMovies;
   }

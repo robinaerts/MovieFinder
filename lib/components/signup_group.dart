@@ -36,13 +36,19 @@ class _CreateJoinGroupState extends State<CreateJoinGroup> {
       _loading = true;
     });
 
-    FirebaseFirestore.instance
-        .collection("groups")
-        .doc(groupCodeController.text)
-        .update({
-      "members": FieldValue.arrayUnion(
-          [FirebaseAuth.instance.currentUser!.uid.toString()])
-    });
+    try {
+      FirebaseFirestore.instance
+          .collection("groups")
+          .doc(groupCodeController.text)
+          .update({
+        "members": FieldValue.arrayUnion(
+            [FirebaseAuth.instance.currentUser!.uid.toString()])
+      });
+    } catch (e) {
+      return setState(() {
+        _loading = false;
+      });
+    }
 
     Navigator.of(context).pushReplacement(MaterialPageRoute(
       builder: (context) => const MainApp(),

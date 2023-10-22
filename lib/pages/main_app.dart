@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:moviefinder/components/movies.dart';
 import 'package:moviefinder/components/overview.dart';
 import 'package:moviefinder/components/profile.dart';
-import 'package:moviefinder/pages/settings.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 
@@ -27,16 +26,10 @@ class _MainAppState extends State<MainApp> {
             appBar: AppBar(
                 leading: Image.asset("assets/images/icon.png"),
                 backgroundColor: Theme.of(context).primaryColor,
-                title: const Text("Movie Finder"),
+                title: const Text("MovieFinder"),
                 actions: [
                   SvgPicture.asset("assets/images/tmdb.svg", height: 15),
-                  const SizedBox(width: 30),
-                  IconButton(
-                      onPressed: () {
-                        Navigator.of(context).push(MaterialPageRoute(
-                            builder: ((context) => const Settings())));
-                      },
-                      icon: const Icon(Icons.settings))
+                  const SizedBox(width: 10)
                 ]),
             body: ((selectedPage == 0)
                 ? const Overview()
