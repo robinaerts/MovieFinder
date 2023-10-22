@@ -140,213 +140,218 @@ class _ProfileState extends State<Profile> {
             var userData = snapshot.data['members']
                 .where((item) => item['id'] == _user.uid)
                 .toList()[0];
-            return Container(
-                padding: const EdgeInsets.all(30),
-                child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Center(
-                          child: Text("Hi, ${userData['firstname']}!",
-                              style: const TextStyle(
-                                fontSize: 25,
-                              ))),
-                      const Text("Your Info:",
-                          style: TextStyle(
-                              fontSize: 20, fontWeight: FontWeight.bold)),
-                      const SizedBox(height: 20),
-                      Row(
-                        children: [
-                          Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  "Name ",
-                                  style: TextStyle(color: Colors.grey[600]),
-                                ),
-                                const SizedBox(height: 10),
-                                Text(
-                                  "Email ",
-                                  style: TextStyle(color: Colors.grey[600]),
-                                ),
-                                const SizedBox(height: 10),
-                                Text(
-                                  "Username ",
-                                  style: TextStyle(color: Colors.grey[600]),
-                                ),
-                              ]),
-                          const SizedBox(width: 50),
-                          Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(userData['firstname'] +
-                                    " " +
-                                    userData['lastname']),
-                                const SizedBox(height: 10),
-                                Text(userData['email']),
-                                const SizedBox(height: 10),
-                                Text(userData['username']),
-                              ])
-                        ],
-                      ),
-                      const SizedBox(height: 20),
-                      SizedBox(
-                        width: 100,
-                        child: OutlinedButton(
-                          onPressed: () => logout(context),
-                          child: const Row(
-                              children: [Icon(Icons.logout), Text("Logout")]),
-                        ),
-                      ),
-                      const SizedBox(height: 30),
-                      const Text("Preferences:",
-                          style: TextStyle(
-                              fontSize: 20, fontWeight: FontWeight.bold)),
-                      const Preferences(),
-                      snapshot.data['team'] != null
-                          ? Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                const Text("Your Team:",
-                                    style: TextStyle(
-                                        fontSize: 20,
-                                        fontWeight: FontWeight.bold)),
-                                const SizedBox(height: 20),
-                                Row(
-                                  children: [
-                                    Column(
-                                      children: [
-                                        Text(
-                                          "Code ",
-                                          style: TextStyle(
-                                              color: Colors.grey[600]),
-                                        ),
-                                      ],
-                                    ),
-                                    const SizedBox(
-                                      width: 50,
-                                    ),
-                                    Column(
-                                      children: [
-                                        Row(
-                                          children: [
-                                            Text(
-                                                "${snapshot.data['team']['code']}"),
-                                            const SizedBox(width: 10),
-                                            IconButton(
-                                                onPressed: () {
-                                                  Share.share(
-                                                      'Join my team on MovieFinder! Code: ${snapshot.data['team']['code']}. Check it out! https://moviefinder.robinaerts.be',
-                                                      subject:
-                                                          "Join my team on MovieFinder!");
-                                                },
-                                                icon: const Icon(Icons.share))
-                                          ],
-                                        )
-                                      ],
-                                    )
-                                  ],
-                                ),
-                                ListView.builder(
-                                    shrinkWrap: true,
-                                    itemCount: snapshot.data['members'].length,
-                                    itemBuilder:
-                                        (BuildContext context, int index) {
-                                      return ListTile(
-                                        contentPadding:
-                                            const EdgeInsets.fromLTRB(
-                                                0, 10, 0, 0),
-                                        title: Text(snapshot.data['members']
-                                                [index]['firstname'] +
-                                            " " +
-                                            snapshot.data['members'][index]
-                                                ['lastname']),
-                                        subtitle: Text(snapshot.data['members']
-                                            [index]['email']),
-                                      );
-                                    }),
-                                // Leave team button
-                                Container(
-                                  width: 135,
-                                  padding: EdgeInsets.fromLTRB(0, 20, 0, 20),
-                                  child: FilledButton(
-                                    style: ButtonStyle(
-                                        backgroundColor:
-                                            MaterialStateProperty.all<Color>(
-                                                Colors.red)),
-                                    onPressed: () => leaveTeam(context),
-                                    child: const Row(children: [
-                                      Icon(Icons.logout),
-                                      Text("Leave Team")
-                                    ]),
+            return SingleChildScrollView(
+              child: Container(
+                  padding: const EdgeInsets.all(30),
+                  child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Center(
+                            child: Text("Hi, ${userData['firstname']}!",
+                                style: const TextStyle(
+                                  fontSize: 25,
+                                ))),
+                        const Text("Your Info:",
+                            style: TextStyle(
+                                fontSize: 20, fontWeight: FontWeight.bold)),
+                        const SizedBox(height: 20),
+                        Row(
+                          children: [
+                            Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    "Name ",
+                                    style: TextStyle(color: Colors.grey[600]),
                                   ),
-                                ),
-                              ],
-                            )
-                          : Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                const Text("Join or create a team:",
-                                    style: TextStyle(
-                                        fontSize: 20,
-                                        fontWeight: FontWeight.bold)),
-                                const SizedBox(height: 20),
-                                Container(
-                                  margin:
-                                      const EdgeInsets.fromLTRB(0, 20, 0, 20),
-                                  child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        const Text("Don't have a group?",
+                                  const SizedBox(height: 10),
+                                  Text(
+                                    "Email ",
+                                    style: TextStyle(color: Colors.grey[600]),
+                                  ),
+                                  const SizedBox(height: 10),
+                                  Text(
+                                    "Username ",
+                                    style: TextStyle(color: Colors.grey[600]),
+                                  ),
+                                ]),
+                            const SizedBox(width: 50),
+                            Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(userData['firstname'] +
+                                      " " +
+                                      userData['lastname']),
+                                  const SizedBox(height: 10),
+                                  Text(userData['email']),
+                                  const SizedBox(height: 10),
+                                  Text(userData['username']),
+                                ])
+                          ],
+                        ),
+                        const SizedBox(height: 20),
+                        SizedBox(
+                          width: 100,
+                          child: OutlinedButton(
+                            onPressed: () => logout(context),
+                            child: const Row(
+                                children: [Icon(Icons.logout), Text("Logout")]),
+                          ),
+                        ),
+                        const SizedBox(height: 30),
+                        const Text("Preferences:",
+                            style: TextStyle(
+                                fontSize: 20, fontWeight: FontWeight.bold)),
+                        const Preferences(),
+                        snapshot.data['team'] != null
+                            ? Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const Text("Your Team:",
+                                      style: TextStyle(
+                                          fontSize: 20,
+                                          fontWeight: FontWeight.bold)),
+                                  const SizedBox(height: 20),
+                                  Row(
+                                    children: [
+                                      Column(
+                                        children: [
+                                          Text(
+                                            "Code ",
                                             style: TextStyle(
-                                                fontWeight: FontWeight.bold,
-                                                fontSize: 16)),
-                                        const SizedBox(
-                                          height: 10,
-                                        ),
-                                        _loading
-                                            ? const CircularProgressIndicator()
-                                            : ElevatedButton(
-                                                onPressed: createGroup,
-                                                child:
-                                                    const Text("Create One")),
+                                                color: Colors.grey[600]),
+                                          ),
+                                        ],
+                                      ),
+                                      const SizedBox(
+                                        width: 50,
+                                      ),
+                                      Column(
+                                        children: [
+                                          Row(
+                                            children: [
+                                              Text(
+                                                  "${snapshot.data['team']['code']}"),
+                                              const SizedBox(width: 10),
+                                              IconButton(
+                                                  onPressed: () {
+                                                    Share.share(
+                                                        'Join my team on MovieFinder! Code: ${snapshot.data['team']['code']}. Check it out! https://moviefinder.robinaerts.be',
+                                                        subject:
+                                                            "Join my team on MovieFinder!");
+                                                  },
+                                                  icon: const Icon(Icons.share))
+                                            ],
+                                          )
+                                        ],
+                                      )
+                                    ],
+                                  ),
+                                  ListView.builder(
+                                      shrinkWrap: true,
+                                      itemCount:
+                                          snapshot.data['members'].length,
+                                      itemBuilder:
+                                          (BuildContext context, int index) {
+                                        return ListTile(
+                                          contentPadding:
+                                              const EdgeInsets.fromLTRB(
+                                                  0, 10, 0, 0),
+                                          title: Text(snapshot.data['members']
+                                                  [index]['firstname'] +
+                                              " " +
+                                              snapshot.data['members'][index]
+                                                  ['lastname']),
+                                          subtitle: Text(snapshot
+                                              .data['members'][index]['email']),
+                                        );
+                                      }),
+                                  // Leave team button
+                                  Container(
+                                    width: 135,
+                                    padding: EdgeInsets.fromLTRB(0, 20, 0, 20),
+                                    child: FilledButton(
+                                      style: ButtonStyle(
+                                          backgroundColor:
+                                              MaterialStateProperty.all<Color>(
+                                                  Colors.red)),
+                                      onPressed: () => leaveTeam(context),
+                                      child: const Row(children: [
+                                        Icon(Icons.logout),
+                                        Text("Leave Team")
                                       ]),
-                                ),
-                                Container(
+                                    ),
+                                  ),
+                                ],
+                              )
+                            : Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const Text("Join or create a team:",
+                                      style: TextStyle(
+                                          fontSize: 20,
+                                          fontWeight: FontWeight.bold)),
+                                  const SizedBox(height: 20),
+                                  Container(
                                     margin:
                                         const EdgeInsets.fromLTRB(0, 20, 0, 20),
                                     child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        const Text("I received a code",
-                                            style: TextStyle(
-                                                fontWeight: FontWeight.bold,
-                                                fontSize: 16)),
-                                        const SizedBox(
-                                          height: 10,
-                                        ),
-                                        TextField(
-                                          controller: groupCodeController,
-                                          keyboardType: TextInputType.number,
-                                          decoration: const InputDecoration(
-                                            border: OutlineInputBorder(),
-                                            hintText: 'Enter your 9-digit code',
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          const Text("Don't have a group?",
+                                              style: TextStyle(
+                                                  fontWeight: FontWeight.bold,
+                                                  fontSize: 16)),
+                                          const SizedBox(
+                                            height: 10,
                                           ),
-                                        ),
-                                        const SizedBox(
-                                          height: 10,
-                                        ),
-                                        _loading
-                                            ? const CircularProgressIndicator()
-                                            : OutlinedButton(
-                                                onPressed: joinGroup,
-                                                child: const Text("Join Group"))
-                                      ],
-                                    ))
-                              ],
-                            )
-                    ]));
+                                          _loading
+                                              ? const CircularProgressIndicator()
+                                              : ElevatedButton(
+                                                  onPressed: createGroup,
+                                                  child:
+                                                      const Text("Create One")),
+                                        ]),
+                                  ),
+                                  Container(
+                                      margin: const EdgeInsets.fromLTRB(
+                                          0, 20, 0, 20),
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          const Text("I received a code",
+                                              style: TextStyle(
+                                                  fontWeight: FontWeight.bold,
+                                                  fontSize: 16)),
+                                          const SizedBox(
+                                            height: 10,
+                                          ),
+                                          TextField(
+                                            controller: groupCodeController,
+                                            keyboardType: TextInputType.number,
+                                            decoration: const InputDecoration(
+                                              border: OutlineInputBorder(),
+                                              hintText:
+                                                  'Enter your 9-digit code',
+                                            ),
+                                          ),
+                                          const SizedBox(
+                                            height: 10,
+                                          ),
+                                          _loading
+                                              ? const CircularProgressIndicator()
+                                              : OutlinedButton(
+                                                  onPressed: joinGroup,
+                                                  child:
+                                                      const Text("Join Group"))
+                                        ],
+                                      ))
+                                ],
+                              )
+                      ])),
+            );
           } else {
             return const CircularProgressIndicator();
           }
