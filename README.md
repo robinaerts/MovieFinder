@@ -3,7 +3,7 @@
 <h1>MovieFinder</h1>
 
 <div>
-    <a href="https://moviefinder.robyte.me/">Live Preview</a>
+    <a href="https://moviefinder.robinaerts.be/">Live Preview</a>
     ·
         <a href="https://github.com/robinaerts/moviefinder/issues">Report Bug</a>
     ·
@@ -42,7 +42,7 @@ MovieFinder is an easy to use application to choose movies for groups. Everyone 
 
 ### Live Demo
 
-- [Web](https://moviefinder.robyte.me/)
+- [Web](https://moviefinder.robinaerts.be/)
 - [Android](https://play.google.com/store/apps/details?id=com.robyte.moviefinder)
 
 
@@ -76,7 +76,7 @@ Distributed under the MIT License.
 ## Contact
 
 Robin Aerts - nibor.aerts@gmail.com<br>
-Website: [https://robyte.me](https://robyte.me)
+Website: [https://robinaerts.be](https://robinaerts.be)
 
 
 <p align="right">(<a href="#top">back to top</a>)</p>
