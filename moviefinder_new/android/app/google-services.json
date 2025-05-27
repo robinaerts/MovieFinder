@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "642672893080",
+    "project_id": "moviefinder-fe7dc",
+    "storage_bucket": "moviefinder-fe7dc.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:642672893080:android:6e3a9def184b463ebb84ed",
+        "android_client_info": {
+          "package_name": "com.robyte.moviefinder"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "642672893080-g5fnm5h68vqgnunbdhfamdj89if0o6d0.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.robyte.moviefinder",
+            "certificate_hash": "beea4ca5032a1f15a440c46bc9ebd0e3980cbed1"
+          }
+        },
+        {
+          "client_id": "642672893080-0sng7iuvge1t4k2tdm6dphsu05csf0se.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBkvUKDfIqvIqeeo4hJoJ7b0FZw_x_rfVY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "642672893080-0sng7iuvge1t4k2tdm6dphsu05csf0se.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

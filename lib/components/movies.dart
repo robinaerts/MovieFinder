@@ -24,16 +24,16 @@ class _MoviesState extends State<Movies> {
   @override
   void initState() {
     super.initState();
-    _bannerAd = BannerAd(
-        size: AdSize.banner,
-        adUnitId: "ca-app-pub-5041240051853060/1944718358",
-        listener: BannerAdListener(onAdLoaded: (_) {
-          setState(() {});
-        }, onAdFailedToLoad: (ad, error) {
-          ad.dispose();
-        }),
-        request: const AdRequest());
-    _bannerAd!.load();
+    // _bannerAd = BannerAd(
+    //     size: AdSize.banner,
+    //     adUnitId: "ca-app-pub-5041240051853060/1944718358",
+    //     listener: BannerAdListener(onAdLoaded: (_) {
+    //       setState(() {});
+    //     }, onAdFailedToLoad: (ad, error) {
+    //       ad.dispose();
+    //     }),
+    //     request: const AdRequest());
+    // _bannerAd!.load();
   }
 
   void nextMovie() {
