@@ -4,9 +4,11 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:swipe_cards/swipe_cards.dart';
 import '../secrets.dart';
 import './rate_movie.dart';
 import "package:flutter/material.dart";
+import 'dart:math' as math; // For Pi
 
 class Movies extends StatefulWidget {
   const Movies({Key? key}) : super(key: key);
@@ -16,29 +18,28 @@ class Movies extends StatefulWidget {
 }
 
 class _MoviesState extends State<Movies> {
-  int movieNumber = 0;
   int page = 1;
-  List<dynamic> movies =
-      []; // Movies currently being displayed or ready for immediate display
-  List<dynamic> movieQueue = []; // Background buffer
-  bool isLoading = false; // True when actively fetching pages or processing
-  bool noMoreMoviesAvailable =
-      false; // True if determined that no more movies can be loaded
+  List<SwipeItem> _swipeItems = [];
+  MatchEngine? _matchEngine;
+  List<dynamic> movieQueue = [];
+  bool isLoading = false;
+  bool noMoreMoviesAvailable = false;
   BannerAd? _bannerAd;
   bool _isAdLoaded = false;
   final _adContainerKey = GlobalKey();
   final Map<String, List<String>> _providerCache = {};
   List<dynamic> ratedMovies = [];
   bool availableOnStreaming = false;
-  final int minQueueSize = 10; // Minimum desired movies in the queue
-  final int maxPagesToFetchInCycle =
-      3; // Max pages to fetch in one go for _loadMoviesUntilQueueFilled
-  final int maxTotalPages = 50; // Absolute max pages to ever fetch
+  final int minQueueSize = 10;
+  final int maxPagesToFetchInCycle = 3;
+  final int maxTotalPages = 50;
+  int _currentCardIndex = 0;
 
   @override
   void initState() {
     super.initState();
     _initializeDataAndLoadMovies();
+    // _initBannerAd();
   }
 
   void _initBannerAd() {
@@ -57,6 +58,7 @@ class _MoviesState extends State<Movies> {
           ad.dispose();
           _bannerAd = null;
           _isAdLoaded = false;
+          print('Ad failed to load: $error');
         },
       ),
       request: const AdRequest(),
@@ -67,14 +69,16 @@ class _MoviesState extends State<Movies> {
   @override
   void dispose() {
     _bannerAd?.dispose();
+    _matchEngine?.dispose();
     super.dispose();
   }
 
   Future<void> _initializeDataAndLoadMovies() async {
-    setState(() {
-      isLoading = true;
-      noMoreMoviesAvailable = false;
-    });
+    if (mounted)
+      setState(() {
+        isLoading = true;
+        noMoreMoviesAvailable = false;
+      });
 
     final prefs = await SharedPreferences.getInstance();
     availableOnStreaming = prefs.getBool("onlyStreaming") ?? false;
@@ -85,20 +89,20 @@ class _MoviesState extends State<Movies> {
 
     await _loadMoviesUntilQueueFilled(isInitialLoad: true);
 
-    // After initial load, if movies list is still empty, it implies no movies were found.
-    if (movies.isEmpty && movieQueue.isEmpty) {
+    if (_swipeItems.isEmpty && movieQueue.isEmpty && mounted) {
       setState(() {
         noMoreMoviesAvailable = true;
       });
     }
-    setState(() {
-      isLoading = false;
-    });
+    if (mounted)
+      setState(() {
+        isLoading = false;
+      });
   }
 
   Future<int> _fetchAndProcessPage() async {
     if (page > maxTotalPages) {
-      return 0; // Stop fetching if max page limit reached
+      return 0;
     }
 
     Uri url = Uri.parse(
@@ -107,7 +111,7 @@ class _MoviesState extends State<Movies> {
     var response = await http.get(url);
     if (response.statusCode != 200) {
       print('Error fetching page $page: ${response.statusCode}');
-      page++; // Increment page to avoid getting stuck on a failing page
+      page++;
       return 0;
     }
     dynamic moviesData = jsonDecode(response.body)["results"];
@@ -119,7 +123,11 @@ class _MoviesState extends State<Movies> {
     var unratedMovies = moviesData
         .where(
           (movie) =>
-              !ratedMovies.any((rated) => rated["movieId"] == movie["id"]),
+              !ratedMovies.any((rated) => rated["movieId"] == movie["id"]) &&
+              !_swipeItems.any((item) => item.content["id"] == movie["id"]) &&
+              !movieQueue.any(
+                (queuedMovie) => queuedMovie["id"] == movie["id"],
+              ),
         )
         .toList();
 
@@ -149,13 +157,11 @@ class _MoviesState extends State<Movies> {
   }
 
   Future<void> _loadMoviesUntilQueueFilled({bool isInitialLoad = false}) async {
-    if (isLoading && !isInitialLoad)
-      return; // Prevent re-entry for background fills if already loading pages
-    if (noMoreMoviesAvailable && !isInitialLoad)
-      return; // Don't try if we've flagged no more movies
+    if (isLoading && !isInitialLoad) return;
+    if (noMoreMoviesAvailable && !isInitialLoad) return;
 
     bool wasLoadingBefore = isLoading;
-    if (!isInitialLoad)
+    if (!isInitialLoad && mounted)
       setState(() {
         isLoading = true;
       });
@@ -169,45 +175,69 @@ class _MoviesState extends State<Movies> {
       int addedCount = await _fetchAndProcessPage();
       moviesAddedToQueueThisCycle += addedCount;
       pagesFetchedThisCycle++;
-      if (addedCount == 0 && pagesFetchedThisCycle > 1) {
-        // If we fetch a couple of pages and get nothing, maybe slow down or stop this cycle
-        // This can happen if filters are too strict or end of TMDB results for popular.
-      }
     }
 
-    // If this load attempt was critical (e.g., initial or movies list is empty)
-    // and we got movies in the queue, move them to the main 'movies' list.
-    if ((isInitialLoad || movies.isEmpty || movieNumber >= movies.length) &&
-        movieQueue.isNotEmpty) {
-      movies.addAll(movieQueue); // Append queue to movies
+    if (movieQueue.isNotEmpty) {
+      List<SwipeItem> newSwipeItems = movieQueue
+          .map((movie) => _createSwipeItem(movie))
+          .toList();
       movieQueue.clear();
-      if (isInitialLoad || movieNumber >= movies.length) {
-        // Reset movieNumber if we were out of bounds or initial
-        movieNumber = 0;
+
+      if (mounted) {
+        setState(() {
+          _swipeItems.addAll(newSwipeItems);
+          if (_swipeItems.isNotEmpty) {
+            _matchEngine = MatchEngine(swipeItems: _swipeItems);
+            if (isInitialLoad ||
+                _currentCardIndex >= _swipeItems.length ||
+                _matchEngine == null) {
+              _currentCardIndex = 0;
+            }
+          } else {
+            _matchEngine = null;
+          }
+        });
       }
     }
 
-    // Determine if no more movies are available
     if (pagesFetchedThisCycle >= maxPagesToFetchInCycle ||
         page > maxTotalPages) {
-      // Tried our best for this cycle
-      if (movieQueue.length < minQueueSize &&
+      if (_swipeItems.length < minQueueSize &&
           moviesAddedToQueueThisCycle == 0) {
-        // Still not enough and added nothing new
-        if (movies.isEmpty || movieNumber >= movies.length) {
-          // And nothing to display
+        if (_swipeItems.isEmpty && mounted) {
           setState(() {
             noMoreMoviesAvailable = true;
           });
         }
       }
     }
-    if (!isInitialLoad || (isInitialLoad && !wasLoadingBefore)) {
-      if (mounted)
-        setState(() {
-          isLoading = false;
-        });
+    if ((!isInitialLoad || (isInitialLoad && !wasLoadingBefore)) && mounted) {
+      setState(() {
+        isLoading = false;
+      });
     }
+  }
+
+  SwipeItem _createSwipeItem(dynamic movieData) {
+    return SwipeItem(
+      content: movieData,
+      likeAction: () {
+        ratedMovie(movie: movieData, liked: true);
+      },
+      nopeAction: () {
+        ratedMovie(movie: movieData, liked: false);
+      },
+      superlikeAction: () {
+        ratedMovie(movie: movieData, liked: true);
+      },
+      // onSlideUpdate: (SlideRegion? region) {
+      //   // This is a void callback. Its parameter SlideRegion? is nullable.
+      //   // The linter error regarding Future<dynamic> was incorrect for this callback type.
+      //   // The SlideRegion class itself should be found if the package is imported correctly.
+      //   // If error persists, it might be a deeper linter/cache issue.
+      //   // print("Region: $region"); // Keep commented for max stability
+      // }
+    );
   }
 
   Future<List<String>> _getMovieProvidersFromCache(String movieId) async {
@@ -225,7 +255,7 @@ class _MoviesState extends State<Movies> {
 
       if (providerData["results"]?["BE"]?["flatrate"] != null) {
         providers = List<String>.from(
-          providerData["results"]["BE"]["flatrate"]
+          providerData["results"]!["BE"]!["flatrate"]!
               .map((provider) => provider["provider_name"])
               .toList(),
         );
@@ -236,8 +266,7 @@ class _MoviesState extends State<Movies> {
             .where(
               (provider) =>
                   provider == "Netflix" ||
-                  provider ==
-                      "Amazon Prime Video" || // Adjusted "Amazon Prime" to "Amazon Prime Video"
+                  provider == "Amazon Prime Video" ||
                   provider == "Disney Plus" ||
                   provider == "Amazon Video",
             )
@@ -253,70 +282,26 @@ class _MoviesState extends State<Movies> {
     }
   }
 
-  void nextMovie() {
-    if (movies.isEmpty && !isLoading && !noMoreMoviesAvailable) {
-      // This case should ideally not be hit if loading logic is correct,
-      // but as a safeguard, trigger a load.
-      _loadMoviesUntilQueueFilled();
-      return;
-    }
-    if (movieNumber < movies.length - 1) {
-      setState(() {
-        movieNumber++;
-      });
-    } else {
-      // Reached end of current movies list
-      setState(() {
-        movieNumber++; // Tentatively move past the last item
-      });
-      if (movieQueue.isNotEmpty) {
-        setState(() {
-          movies.addAll(movieQueue); // Append remaining queue
-          movieQueue.clear();
-          // movieNumber remains valid as it's now an index in the expanded list,
-          // or if it was movies.length, it's now the first new item.
-          // No, if movieNumber was last valid index (length-1), after increment it's 'length'.
-          // If we add N items, new length is old_length + N. movieNumber should point to old_length.
-          // The current movieNumber after increment is already pointing to the first new item from queue.
-        });
-        // Proactively fill queue
-        if (movieQueue.length < minQueueSize && !noMoreMoviesAvailable) {
-          _loadMoviesUntilQueueFilled();
-        }
-      } else if (!isLoading && !noMoreMoviesAvailable) {
-        // Movies exhausted, queue empty, not loading, and not flagged as no more. Try to load.
-        _loadMoviesUntilQueueFilled();
-      }
-      // If after this, movieNumber is still >= movies.length, the build method will show loader or noMoreMovies.
-    }
-
-    // Proactive queue refill if getting low
-    if (movies.length - movieNumber <= 3 &&
-        movieQueue.length < minQueueSize &&
-        !isLoading &&
-        !noMoreMoviesAvailable) {
-      _loadMoviesUntilQueueFilled();
-    }
-  }
-
-  Future<void> ratedMovie({required bool liked}) async {
-    if (movieNumber >= movies.length) return;
-
+  Future<void> ratedMovie({required dynamic movie, required bool liked}) async {
     final User user = FirebaseAuth.instance.currentUser!;
-    final movieData = {
-      'movieId': movies[movieNumber]["id"],
+
+    ratedMovies.add({
+      'movieId': movie["id"],
       'liked': liked,
-      'movieTitle': movies[movieNumber]["original_title"],
-      "moviePoster": movies[movieNumber]["poster_path"],
-    };
-
-    ratedMovies.add(movieData);
-
-    await FirebaseFirestore.instance.doc("users/${user.uid}").update({
-      "rated": FieldValue.arrayUnion([movieData]),
+      'movieTitle': movie["original_title"],
+      "moviePoster": movie["poster_path"],
     });
 
-    nextMovie();
+    await FirebaseFirestore.instance.doc("users/${user.uid}").update({
+      "rated": FieldValue.arrayUnion([
+        {
+          'movieId': movie["id"],
+          'liked': liked,
+          'movieTitle': movie["original_title"],
+          "moviePoster": movie["poster_path"],
+        },
+      ]),
+    });
   }
 
   Widget _buildAdContainer() {
@@ -326,6 +311,7 @@ class _MoviesState extends State<Movies> {
 
     return Container(
       key: _adContainerKey,
+      alignment: Alignment.center,
       margin: const EdgeInsets.symmetric(vertical: 10),
       child: SizedBox(
         width: _bannerAd!.size.width.toDouble(),
@@ -339,10 +325,42 @@ class _MoviesState extends State<Movies> {
   Widget build(BuildContext context) {
     Widget mainContent;
 
-    if (isLoading &&
-        (movies.isEmpty || movieNumber >= movies.length) &&
-        !noMoreMoviesAvailable) {
-      // Actively loading and no movie to display currently (or at the end of a depleted list)
+    Widget buildTag({
+      required String text,
+      required Color color,
+      required double angle,
+    }) {
+      return Align(
+        alignment: angle == 0
+            ? Alignment.center
+            : (angle < 0 ? Alignment.topLeft : Alignment.topRight),
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Transform.rotate(
+            angle: angle * (math.pi / 180), // Convert degrees to radians
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 8),
+              decoration: BoxDecoration(
+                border: Border.all(color: color, width: 3),
+                borderRadius: BorderRadius.circular(10),
+                color: Colors.white.withOpacity(0.8),
+              ),
+              child: Text(
+                text,
+                style: TextStyle(
+                  color: color,
+                  fontSize: 32, // Increased font size
+                  fontWeight: FontWeight.bold,
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ),
+          ),
+        ),
+      );
+    }
+
+    if (isLoading && _swipeItems.isEmpty && !noMoreMoviesAvailable) {
       mainContent = const Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
@@ -352,11 +370,97 @@ class _MoviesState extends State<Movies> {
           Text('Loading movies...'),
         ],
       );
-    } else if (movieNumber < movies.length) {
-      // We have a movie to display
-      mainContent = RateMovie(movie: movies[movieNumber]);
+    } else if (_matchEngine != null &&
+        _swipeItems.isNotEmpty &&
+        _currentCardIndex < _swipeItems.length) {
+      mainContent = Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Expanded(
+            child: SwipeCards(
+              matchEngine: _matchEngine!,
+              itemBuilder: (BuildContext context, int index) {
+                var movieData = _swipeItems[index].content;
+                return RateMovie(movie: movieData);
+              },
+              onStackFinished: () {
+                if (mounted) {
+                  setState(() {
+                    _matchEngine = null;
+                    _currentCardIndex = 0;
+                    if (_swipeItems.isEmpty) {
+                      noMoreMoviesAvailable = true;
+                    } else {
+                      _swipeItems.clear();
+                    }
+                  });
+                }
+                if (!isLoading && !noMoreMoviesAvailable) {
+                  _loadMoviesUntilQueueFilled();
+                } else if (mounted && _swipeItems.isEmpty) {
+                  setState(() {
+                    noMoreMoviesAvailable = true;
+                  });
+                }
+              },
+              itemChanged: (SwipeItem item, int index) {
+                if (mounted) {
+                  setState(() {
+                    _currentCardIndex = index;
+                  });
+                }
+                if (_swipeItems.length - (index + 1) < 3 &&
+                    !isLoading &&
+                    !noMoreMoviesAvailable) {
+                  _loadMoviesUntilQueueFilled();
+                }
+              },
+              upSwipeAllowed: true,
+              fillSpace: true,
+              likeTag: buildTag(
+                text: "LIKE",
+                color: Colors.green.shade700,
+                angle: -15,
+              ),
+              nopeTag: buildTag(
+                text: "NOPE",
+                color: Colors.red.shade700,
+                angle: 15,
+              ),
+              superLikeTag: buildTag(
+                text: "SUPER",
+                color: Colors.blue.shade700,
+                angle: 0,
+              ),
+            ),
+          ),
+          if (!isLoading &&
+              !noMoreMoviesAvailable &&
+              _swipeItems.isNotEmpty) // Show hint only when cards are active
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 8.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.swipe_left, color: Colors.red.shade300, size: 20),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                    child: Text(
+                      "Swipe to rate",
+                      style: TextStyle(color: Colors.grey.shade600),
+                    ),
+                  ),
+                  Icon(
+                    Icons.swipe_right,
+                    color: Colors.green.shade300,
+                    size: 20,
+                  ),
+                ],
+              ),
+            ),
+        ],
+      );
     } else if (noMoreMoviesAvailable) {
-      // No more movies can be loaded
       mainContent = const Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
@@ -375,13 +479,14 @@ class _MoviesState extends State<Movies> {
         ],
       );
     } else {
-      // Fallback: Should be loading if movies are exhausted and not 'noMoreMoviesAvailable'
-      // This state implies movies are out, but isLoading is false, and not noMore.
-      // This indicates a need to trigger a load.
-      if (!isLoading) {
-        // Ensure a load is triggered if somehow missed.
+      if (!isLoading && mounted) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
-          _loadMoviesUntilQueueFilled();
+          if (mounted &&
+              !_isAdLoaded &&
+              _swipeItems.isEmpty &&
+              !noMoreMoviesAvailable) {
+            _loadMoviesUntilQueueFilled();
+          }
         });
       }
       mainContent = const Column(
@@ -395,42 +500,16 @@ class _MoviesState extends State<Movies> {
       );
     }
 
-    bool buttonsDisabled =
-        movieNumber >= movies.length ||
-        (isLoading && (movies.isEmpty || movieNumber >= movies.length));
-    if (noMoreMoviesAvailable && movieNumber >= movies.length) {
-      buttonsDisabled = true;
-    }
-
-    return SingleChildScrollView(
-      child: Column(
+    return Scaffold(
+      body: Column(
         children: [
-          Container(
-            height:
-                650, // Assuming RateMovie and its container needs a fixed height
-            alignment: Alignment.center,
-            child: mainContent,
-          ),
-          SizedBox(
-            width: double.infinity,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                IconButton(
-                  onPressed: buttonsDisabled
-                      ? null
-                      : () => ratedMovie(liked: false),
-                  icon: const Icon(Icons.thumb_down, color: Colors.blueAccent),
-                  iconSize: 30,
-                ),
-                IconButton(
-                  onPressed: buttonsDisabled
-                      ? null
-                      : () => ratedMovie(liked: true),
-                  icon: const Icon(Icons.favorite, color: Colors.redAccent),
-                  iconSize: 30,
-                ),
-              ],
+          Expanded(
+            child: Container(
+              alignment: Alignment.center,
+              padding: const EdgeInsets.only(
+                top: 10,
+              ), // Add some padding at the top of the swipe area
+              child: mainContent,
             ),
           ),
           _buildAdContainer(),

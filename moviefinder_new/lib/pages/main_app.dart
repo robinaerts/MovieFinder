@@ -20,12 +20,22 @@ class _MainAppState extends State<MainApp> {
   }
 
   int selectedPage = 0;
+  bool _dependenciesInitialized = false;
 
   @override
   void initState() {
     super.initState();
-    // Preload images
-    precacheImage(const AssetImage("assets/images/icon.png"), context);
+    // Preload images moved to didChangeDependencies
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (!_dependenciesInitialized) {
+      // Preload images
+      precacheImage(const AssetImage("assets/images/icon.png"), context);
+      _dependenciesInitialized = true;
+    }
   }
 
   @override

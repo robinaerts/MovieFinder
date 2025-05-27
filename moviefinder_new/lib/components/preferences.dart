@@ -53,37 +53,38 @@ class _PreferencesState extends State<Preferences> {
             children: [
               const Text("Select your region: "),
               CountryListPick(
-                  appBar: AppBar(
-                    backgroundColor: Colors.blue,
-                    title: const Text('Pick your country'),
-                  ),
+                appBar: AppBar(
+                  backgroundColor: Colors.blue,
+                  title: const Text('Pick your country'),
+                ),
 
-                  // To disable option set to false
-                  theme: CountryTheme(
-                    isShowFlag: true,
-                    isShowTitle: true,
-                    isShowCode: true,
-                    isDownIcon: true,
-                    showEnglishName: true,
-                  ),
-                  // Set default value
-                  initialSelection: currentRegion,
-                  onChanged: ((code) => setCode(code)),
-                  useUiOverlay: true,
-                  useSafeArea: false),
-            ],
-          ),
-          Row(
-            children: [
-              const Text("Available on streaming sites"),
-              Switch(
-                value: currentStreaming,
-                onChanged: (value) {
-                  setStreaming(value);
-                },
+                // To disable option set to false
+                theme: CountryTheme(
+                  isShowFlag: true,
+                  isShowTitle: true,
+                  isShowCode: true,
+                  isDownIcon: true,
+                  showEnglishName: true,
+                ),
+                // Set default value
+                initialSelection: currentRegion,
+                onChanged: ((code) => setCode(code)),
+                useUiOverlay: true,
+                useSafeArea: false,
               ),
             ],
-          )
+          ),
+          SwitchListTile(
+            title: const Text("Only show movies on my streaming services"),
+            subtitle: const Text("(e.g., Netflix, Amazon Prime, Disney+)"),
+            value: currentStreaming,
+            onChanged: (bool value) {
+              setStreaming(value);
+            },
+            activeColor: Theme.of(context).colorScheme.primary,
+            inactiveThumbColor: Colors.grey[600], // More visible when off
+            inactiveTrackColor: Colors.grey[300], // More visible when off
+          ),
         ],
       ),
     );
