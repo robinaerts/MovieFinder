@@ -1,85 +1,16 @@
-<div align="center">
+# moviefinder_new
 
-<h1>MovieFinder</h1>
-
-<div>
-    <a href="https://moviefinder.robinaerts.be/">Live Preview</a>
-    ·
-        <a href="https://github.com/robinaerts/moviefinder/issues">Report Bug</a>
-    ·
-    <a href="https://github.com/robinaerts/moviefinder/issues">Request Feature</a>
-  </p>
-</div>
-</div>
-<br/>
-
-
-<!-- ABOUT THE PROJECT -->
-
-## About The Project
-<br/>
-
-![Preview Image][preview]
-
-MovieFinder is an easy to use application to choose movies for groups. Everyone can vote for which movies they want to watch, and the app comes up with the most popular choices.
-
-<p align="right">(<a href="#top">back to top</a>)</p>
-
-### Built With
-
-<br/>
-
-![Flutter](https://img.shields.io/badge/Flutter-%2302569B.svg?style=for-the-badge&logo=Flutter&logoColor=white)
-
-![Firebase](https://img.shields.io/badge/Firebase-039BE5?style=for-the-badge&logo=Firebase&logoColor=white)
-
-<p align="right">(<a href="#top">back to top</a>)</p>
-
-<!-- GETTING STARTED -->
+A new Flutter project.
 
 ## Getting Started
 
+This project is a starting point for a Flutter application.
 
-### Live Demo
+A few resources to get you started if this is your first Flutter project:
 
-- [Web](https://moviefinder.robinaerts.be/)
-- [Android](https://play.google.com/store/apps/details?id=com.robyte.moviefinder)
+- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
+- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
 
-
-<br/>
-
-### Run locally
-
-You will need to have Flutter installed.
-
-
-
-```sh
-  $ flutter pub get
-  $ flutter run
-```
-
-
-<p align="right">(<a href="#top">back to top</a>)</p>
-
-
-<!-- LICENSE -->
-
-## License
-
-Distributed under the MIT License.
-
-<p align="right">(<a href="#top">back to top</a>)</p>
-
-<!-- CONTACT -->
-
-## Contact
-
-Robin Aerts - nibor.aerts@gmail.com<br>
-Website: [https://robinaerts.be](https://robinaerts.be)
-
-
-<p align="right">(<a href="#top">back to top</a>)</p>
-
-
-[preview]: ./assets/images/banner.jpg
+For help getting started with Flutter development, view the
+[online documentation](https://docs.flutter.dev/), which offers tutorials,
+samples, guidance on mobile development, and a full API reference.
