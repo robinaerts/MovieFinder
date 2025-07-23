@@ -17,6 +17,18 @@ class _ProfileState extends State<Profile> {
   final groupCodeController = TextEditingController();
   bool _loading = false;
   final User _user = FirebaseAuth.instance.currentUser!;
+  late Future<Map<String, dynamic>> _teamAndMembersFuture = getTeamAndMembers();
+
+  @override
+  void initState() {
+    super.initState();
+  }
+
+  void _refreshTeamAndMembers() {
+    setState(() {
+      _teamAndMembersFuture = getTeamAndMembers();
+    });
+  }
 
   Future<void> createGroup() async {
     if (FirebaseAuth.instance.currentUser == null) return;
@@ -33,14 +45,31 @@ class _ProfileState extends State<Profile> {
         "code": id,
         "members": [FirebaseAuth.instance.currentUser!.uid],
       });
-      if (mounted) Navigator.of(context).pushReplacementNamed("/app");
-    } catch (e) {
-      if (mounted)
+      if (mounted) {
         setState(() {
           _loading = false;
         });
-      print("Error creating group: $e");
-      // Show snackbar or dialog for error
+        _refreshTeamAndMembers();
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text("Team created successfully!"),
+            backgroundColor: Colors.green,
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _loading = false;
+        });
+        print("Error creating group: $e");
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text("Failed to create team. Please try again."),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
     }
   }
 
@@ -56,20 +85,34 @@ class _ProfileState extends State<Profile> {
           .update({
             "members": FieldValue.arrayUnion([_user.uid]),
           });
-      if (mounted) Navigator.of(context).pushReplacementNamed("/app");
-    } catch (e) {
-      if (mounted)
+      if (mounted) {
         setState(() {
           _loading = false;
         });
-      print("Error joining group: $e");
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            "Failed to join group. Code might be invalid or network error.",
+        groupCodeController.clear(); // Clear the input field
+        _refreshTeamAndMembers();
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text("Successfully joined the team!"),
+            backgroundColor: Colors.green,
           ),
-        ),
-      );
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _loading = false;
+        });
+        print("Error joining group: $e");
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text(
+              "Failed to join group. Code might be invalid or network error.",
+            ),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
     }
   }
 
@@ -92,13 +135,31 @@ class _ProfileState extends State<Profile> {
           "members": FieldValue.arrayRemove([_user.uid]),
         });
       }
-      if (mounted) Navigator.of(context).pushReplacementNamed("/app");
-    } catch (e) {
-      if (mounted)
+      if (mounted) {
         setState(() {
           _loading = false;
         });
-      print("Error leaving team: $e");
+        _refreshTeamAndMembers();
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text("Successfully left the team!"),
+            backgroundColor: Colors.green,
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _loading = false;
+        });
+        print("Error leaving team: $e");
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text("Failed to leave team. Please try again."),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
     }
   }
 
@@ -117,7 +178,9 @@ class _ProfileState extends State<Profile> {
     if (teamQuery.docs.isEmpty) {
       return {
         "team": null,
-        "membersData": [currentUserData], // Return current user data in a list
+        "membersData": currentUserData != null
+            ? [currentUserData]
+            : <Map<String, dynamic>>[],
         "currentUser": currentUserData,
       };
     }
@@ -133,7 +196,10 @@ class _ProfileState extends State<Profile> {
               .doc(memberId)
               .get();
           if (memberDoc.exists) {
-            memberDataList.add(memberDoc.data() as Map<String, dynamic>);
+            final memberData = memberDoc.data();
+            if (memberData != null) {
+              memberDataList.add(memberData);
+            }
           }
         } catch (e) {
           print('Error fetching member data for $memberId: $e');
@@ -195,7 +261,7 @@ class _ProfileState extends State<Profile> {
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<Map<String, dynamic>>(
-      future: getTeamAndMembers(),
+      future: _teamAndMembersFuture,
       builder: (BuildContext context, AsyncSnapshot<Map<String, dynamic>> snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(child: CircularProgressIndicator());
