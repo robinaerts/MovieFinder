@@ -35,6 +35,25 @@ class _MoviesState extends State<Movies> {
   final int maxTotalPages = 50;
   int _currentCardIndex = 0;
 
+  // New: endpoints to cycle through
+  final List<Map<String, String>> _endpoints = [
+    {"name": "Popular", "url": "https://api.themoviedb.org/3/movie/popular"},
+    {
+      "name": "Top Rated",
+      "url": "https://api.themoviedb.org/3/movie/top_rated",
+    },
+    {
+      "name": "Trending (Day)",
+      "url": "https://api.themoviedb.org/3/trending/movie/day",
+    },
+    {
+      "name": "Now Playing",
+      "url": "https://api.themoviedb.org/3/movie/now_playing",
+    },
+    {"name": "Upcoming", "url": "https://api.themoviedb.org/3/movie/upcoming"},
+  ];
+  int _currentEndpointIndex = 0;
+
   @override
   void initState() {
     super.initState();
@@ -101,59 +120,77 @@ class _MoviesState extends State<Movies> {
   }
 
   Future<int> _fetchAndProcessPage() async {
-    if (page > maxTotalPages) {
-      return 0;
-    }
+    int endpointsTried = 0;
+    while (endpointsTried < _endpoints.length) {
+      if (page > maxTotalPages) {
+        // Try next endpoint
+        if (_currentEndpointIndex < _endpoints.length - 1) {
+          _currentEndpointIndex++;
+          page = 1;
+        } else {
+          // All endpoints exhausted
+          return 0;
+        }
+        endpointsTried++;
+        continue;
+      }
 
-    Uri url = Uri.parse(
-      'https://api.themoviedb.org/3/movie/popular?api_key=$mdbKey&page=$page',
-    );
-    var response = await http.get(url);
-    if (response.statusCode != 200) {
-      print('Error fetching page $page: ${response.statusCode}');
-      page++;
-      return 0;
-    }
-    dynamic moviesData = jsonDecode(response.body)["results"];
-    if (moviesData == null || moviesData is! List || moviesData.isEmpty) {
-      page++;
-      return 0;
-    }
+      final endpoint = _endpoints[_currentEndpointIndex];
+      Uri url = Uri.parse('${endpoint["url"]}?api_key=$mdbKey&page=$page');
+      var response = await http.get(url);
+      if (response.statusCode != 200) {
+        page++;
+        continue;
+      }
+      dynamic body = jsonDecode(response.body);
+      dynamic moviesData;
+      if (body["results"] != null) {
+        moviesData = body["results"];
+      } else if (body is List) {
+        moviesData = body;
+      } else {
+        moviesData = [];
+      }
+      if (moviesData == null || moviesData is! List || moviesData.isEmpty) {
+        page++;
+        continue;
+      }
 
-    var unratedMovies = moviesData
-        .where(
-          (movie) =>
-              !ratedMovies.any((rated) => rated["movieId"] == movie["id"]) &&
-              !_swipeItems.any((item) => item.content["id"] == movie["id"]) &&
-              !movieQueue.any(
-                (queuedMovie) => queuedMovie["id"] == movie["id"],
-              ),
-        )
-        .toList();
+      var unratedMovies = moviesData
+          .where(
+            (movie) =>
+                !ratedMovies.any((rated) => rated["movieId"] == movie["id"]) &&
+                !_swipeItems.any((item) => item.content["id"] == movie["id"]) &&
+                !movieQueue.any(
+                  (queuedMovie) => queuedMovie["id"] == movie["id"],
+                ),
+          )
+          .toList();
 
-    if (unratedMovies.isEmpty) {
-      page++;
-      return 0;
-    }
+      if (unratedMovies.isEmpty) {
+        page++;
+        continue;
+      }
 
-    var futures = unratedMovies
-        .map((movie) => _getMovieProvidersFromCache(movie["id"].toString()))
-        .toList();
+      var futures = unratedMovies
+          .map((movie) => _getMovieProvidersFromCache(movie["id"].toString()))
+          .toList();
 
-    var providersResults = await Future.wait(futures);
-    int countAdded = 0;
-    for (int i = 0; i < unratedMovies.length; i++) {
-      var movie = unratedMovies[i];
-      var providers = providersResults[i];
+      var providersResults = await Future.wait(futures);
+      int countAdded = 0;
+      for (int i = 0; i < unratedMovies.length; i++) {
+        var movie = unratedMovies[i];
+        var providers = providersResults[i];
 
-      if (providers.isNotEmpty) {
         movie["providers"] = providers;
         movieQueue.add(movie);
         countAdded++;
       }
+      page++;
+      return countAdded;
     }
-    page++;
-    return countAdded;
+    // All endpoints exhausted
+    return 0;
   }
 
   Future<void> _loadMoviesUntilQueueFilled({bool isInitialLoad = false}) async {
@@ -259,18 +296,6 @@ class _MoviesState extends State<Movies> {
               .map((provider) => provider["provider_name"])
               .toList(),
         );
-      }
-
-      if (availableOnStreaming) {
-        providers = providers
-            .where(
-              (provider) =>
-                  provider == "Netflix" ||
-                  provider == "Amazon Prime Video" ||
-                  provider == "Disney Plus" ||
-                  provider == "Amazon Video",
-            )
-            .toList();
       }
 
       _providerCache[movieId] = providers;

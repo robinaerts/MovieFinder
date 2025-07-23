@@ -441,11 +441,11 @@ class _ProfileState extends State<Profile> {
                       const SizedBox(height: 10.0),
                       TextField(
                         controller: groupCodeController,
-                        keyboardType: TextInputType
-                            .text, // Changed to text for flexibility, can be numbers too
+                        keyboardType: TextInputType.number,
                         inputFormatters: [
                           LengthLimitingTextInputFormatter(9),
-                        ], // Max 9 chars for group code
+                          FilteringTextInputFormatter.digitsOnly,
+                        ], // Only numbers, max 9 chars
                         decoration: InputDecoration(
                           hintText: 'Enter 9-digit team code',
                           border: const OutlineInputBorder(),
